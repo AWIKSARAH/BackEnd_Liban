@@ -1,5 +1,6 @@
 import express from "express";
 import morgan from "morgan";
+import cors from "cors"
 import { handle404Error, handleErrors } from "./HandlingError/HandleError.js";
 import connection from './config/connection_db.js';
 const app = express();
@@ -12,7 +13,7 @@ if ((process.env.DEV_NAME === "developpment")) {
 app.get("/", function (req, res) {
   res.send(":)))(((:");
 });
-
+app.use(cors());
 app.use(express.static("public"));
 
 app.use(express.json());
