@@ -1,11 +1,12 @@
 import express from "express";
 import morgan from "morgan";
 import { handle404Error, handleErrors } from "./HandlingError/HandleError.js";
-
+import connection from './config/connection_db.js';
 const app = express();
 const port = process.env.PORT || 3000;
+connection();
 
-if ((process.env.DEV_NAME = "developpment")) {
+if ((process.env.DEV_NAME === "developpment")) {
   app.use(morgan("dev"));
 }
 app.get("/", function (req, res) {
