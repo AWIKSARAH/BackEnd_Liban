@@ -1,7 +1,8 @@
-import PlaceModel from '../models/placeModel.js';
-import { deleteImage } from '../middleware/HandlingImage.js';
+import PlaceModel from "../models/placeModel.js";
+import { deleteImage } from "../middleware/HandlingImage.js";
 
 class PlaceController {
+  //This function creates a new place document in the db
   async create(req, res) {
     try {
       const place = new PlaceModel({
@@ -15,42 +16,43 @@ class PlaceController {
         image: req.body.image,
         // typeId: req.body.typeId
       });
-      console.log(req.body.tagIds)
-      
+      console.log(req.body.tagIds);
 
       await place.validate();
 
       const savedPlace = await place.save();
-      return res.status(201).json({success:true,savedPlace});
+      return res.status(201).json({ success: true, savedPlace });
     } catch (error) {
       if (error.name === "ValidationError") {
         const errors = {};
         Object.keys(error.errors).forEach((key) => {
           errors[key] = error.errors[key].message;
         });
-        return res.status(422).json({success:false, errors });
+        return res.status(422).json({ success: false, errors });
       }
       console.error(error);
-       return res.status(500).json({success:false,message:"Server error" });
+      return res.status(500).json({ success: false, message: "Server error" });
     }
   }
-async read(req, res) {
-  try {
-    const places = await PlaceModel.find();
-    return res.status(200).json({ success: true, places });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+  async read(req, res) {
+    try {
+      const places = await PlaceModel.find();
+      return res.status(200).json({ success: true, places });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+    }
   }
-}
   async readOne(req, res) {
     try {
       const place = await PlaceModel.findById(req.params.id);
       if (!place) {
-        return res.status(404).json({success:false, message: 'Place not found' });
+        return res
+          .status(404)
+          .json({ success: false, message: "Place not found" });
       }
       res.json(place);
     } catch (error) {
-      res.status(500).json({success:false, message: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 
@@ -58,9 +60,11 @@ async read(req, res) {
     try {
       const place = await PlaceModel.findById(req.params.id);
       if (!place) {
-        return res.status(404).json({ success: false, message: "Place not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Place not found" });
       }
-  
+
       place.name = req.body.name;
       place.website = req.body.website;
       place.about = req.body.about;
@@ -69,16 +73,16 @@ async read(req, res) {
       place.schedule = req.body.schedule;
       place.location = req.body.location;
       place.type_id = req.body.type_id;
-  
+
       // Check if a new image has been uploaded
       if (req.body.image) {
         // Delete the previous image
         deleteImage(place.image);
         place.image = req.body.image;
       }
-  
+
       await place.validate();
-  
+
       const savedPlace = await place.save();
       return res.status(200).json({ success: true, savedPlace });
     } catch (error) {
@@ -93,22 +97,23 @@ async read(req, res) {
       return res.status(500).json({ success: false, message: "Server Error" });
     }
   }
-  
 
   async delete(req, res) {
     try {
       const place = await PlaceModel.findByIdAndDelete(req.params.id);
       if (!place) {
-        return res.status(404).json({success:false, message: 'Place not found' });
+        return res
+          .status(404)
+          .json({ success: false, message: "Place not found" });
       }
       if (place.image) {
         // Delete the previous image
         deleteImage(place.image);
         place.image = req.body.image;
       }
-      res.json({ success:true,message: 'Place deleted' });
+      res.json({ success: true, message: "Place deleted" });
     } catch (error) {
-      res.status(500).json({ success:false,message: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 }
