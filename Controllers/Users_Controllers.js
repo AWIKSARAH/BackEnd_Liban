@@ -2,7 +2,8 @@ import Users from "../Models/Users.js";
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
-
+try {
+  
   if (!email || !password)
     return res
       .status(500)
@@ -14,6 +15,8 @@ export const login = async (req, res) => {
       .status(500)
       .json({ success: false, error: "Inavalid Credentials: Email" });
   }
+  console.log(user);
+
   const isCorrect = await user.comparePassword(password);
   if(!isCorrect){ return res.status(500).json({ success: false, error: "Inavalid Credentials: Password"}); }
 
@@ -22,6 +25,9 @@ export const login = async (req, res) => {
   // res.status(200).json({ success: true, user: user });
 res.status(200).header("Authorization", "Bearer " + token).json({success: true, user: user, token: token});
 
+} catch (error) {
+  res.status(500).json({success: false, error: error});
+}
 };
 export const createUser = async (req, res) => {
   const { name, email, password, IsAdmin } = req.body;

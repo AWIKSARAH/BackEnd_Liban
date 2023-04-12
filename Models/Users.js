@@ -39,7 +39,9 @@ User_Schema.pre('save',async function (next) {
 })
 
 User_Schema.methods.createJWT = function(){
-  return jwt.sign({userId:this._id}, process.env.SECRET_KEY,{expiresIn:process.env.JWT_LIFETIME})
+  console.log(this._id);
+  return jwt.sign({_id:this._id}, process.env.SECRET_KEY,{expiresIn:process.env.JWT_LIFETIME})
+
 }
 
 User_Schema.methods.comparePassword = async function(candidate){
@@ -47,7 +49,5 @@ User_Schema.methods.comparePassword = async function(candidate){
   return isMatch ;
 }
 
-User_Schema.methods.grant = async function(candidate){
-  
-}
+
 export default mongoose.model("Users", User_Schema);
