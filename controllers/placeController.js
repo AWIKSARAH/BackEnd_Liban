@@ -28,6 +28,7 @@ class PlaceController {
         Object.keys(error.errors).forEach((key) => {
           errors[key] = error.errors[key].message;
         });
+        errors.status=422
         return res.status(422).json({ success: false, errors });
       }
       console.error(error);
