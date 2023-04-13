@@ -133,6 +133,16 @@ class PlaceController {
       res.status(500).json({ success: false, message: error.message });
     }
   }
+  async getByTypeId(req, res) {
+    try {
+      const { typeId } = req.params;
+      const places = await PlaceModel.find({ typeId });
+      res.json({ success: true, places });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  }
 }
 
 export default PlaceController;
