@@ -10,11 +10,11 @@ class PlaceController {
         website: req.body.website,
         about: req.body.about,
         socialMedia: JSON.parse(req.body.socialMedia),
-        // tagIds: req.body.tagIds,   // Uncomment this line and provide the appropriate field name if you want to include tagIds.
+        tagIds: req.body.tagIds,   // Uncomment this line and provide the appropriate field name if you want to include tagIds.
         schedule: JSON.parse(req.body.schedule),
         location: req.body.location,
         image: req.body.image,
-        // typeId: req.body.typeId     // Uncomment this line and provide the appropriate field name if you want to include typeId.
+        typeId: JSON.parse(req.body.typeId)     // Uncomment this line and provide the appropriate field name if you want to include typeId.
       });
       console.log(req.body.tagIds);
       await place.validate();
@@ -80,11 +80,11 @@ class PlaceController {
       place.name = req.body.name;
       place.website = req.body.website;
       place.about = req.body.about;
-      place.socialMedia = req.body.socialMedia;
-      place.tag_id = req.body.tag_id;
+      place.socialMedia = req.body.socialMedia?JSON.parse(req.body.socialMedia):place.socialMedia;
+      place.tagIds = req.body.tagIds?JSON.parse(req.body.tagIds):place.tagIds;
       place.schedule = req.body.schedule;
       place.location = req.body.location;
-      place.type_id = req.body.type_id;
+      place.typeId = req.body.typeId?JSON.parse(req.body.typeId):place.typeId;
 
       // Check if a new image has been uploaded
       if (req.body.image) {
