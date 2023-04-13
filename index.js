@@ -4,6 +4,8 @@ import cors from "cors"
 import { handle404Error, handleErrors } from "./HandlingError/HandleError.js";
 import connection from './config/connection_db.js';
 import event_page from "./routers/Route_event.js";
+import tag_page from "./routers/Route_tag.js";
+
 const app = express();
 const port = process.env.PORT || 3001 ;
 connection();
@@ -14,11 +16,14 @@ if ((process.env.DEV_NAME === "developpment")) {
 app.get("/", function (req, res) {
   res.send(":)))(((:");
 });
+app.use(express.json());
 app.use(cors());
 app.use(express.static("public"));
 app.use("/dashboard/event", event_page);
+app.use("/dashboard/tag", tag_page);
 
-app.use(express.json());
+
+
 app.use(express.urlencoded({ extended: true }));
 
 //Handling Errors 404 and other

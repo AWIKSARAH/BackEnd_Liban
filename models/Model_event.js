@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 const eventschema = new Schema(
   {
    
-    Title: {
+    title: {
       type: String,
     //   required: true,
     },

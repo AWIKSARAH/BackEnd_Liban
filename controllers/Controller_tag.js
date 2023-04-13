@@ -1,6 +1,5 @@
 
-
-import model from '../models/Model_event.js';
+import model from "../models/Model_tag.js";
 
 
 function add(req, res, next) {
@@ -34,11 +33,11 @@ async function getById(req, res, next) {
   }
 }
 
-async function getByTitle(req, res, next) {
+async function getByName(req, res, next) {
   try {
-    const title = req.params.title
-   
-    const event = await model.findOne({ title: title })
+    const name = req.params.name
+    
+    const event = await model.findOne({ name: name })
     if (!event) {
       return res.status(404).send({ success: false, error: 'Event not found' })
     }
@@ -87,5 +86,5 @@ function Delete(req, res, next) {
     })
 }
 
-const event = { add, getAll, getById, getByTitle, edit, Delete }
+const event = { add, getAll, getById, getByName, edit, Delete }
 export default event
