@@ -19,6 +19,6 @@ export default async function  requiredAuth  (req,res,next) {
         console.log(req.user);
         next();
     } catch (error) {
-    res.status(401).json({success: false, error: 'error'})
+    res.status(401).json({success: false, error: 'You must be logged in'})
     }
 }; 

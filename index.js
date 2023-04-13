@@ -24,34 +24,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-//
-//
-
-//
-//
-//
-//
-//
-//
-
-//
-//
-//
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
 //INCLUDE THE ROUTING
 app.use('/api/user/',User_Routes);
 app.use("/api/places",  placeRouter);
