@@ -133,7 +133,7 @@ class PlaceController {
       res.status(500).json({ success: false, message: error.message });
     }
   }
-  async getByTypeId(req, res) {
+  async readByTypeId(req, res) {
     try {
       const { typeId } = req.params;
       const places = await PlaceModel.find({ typeId });

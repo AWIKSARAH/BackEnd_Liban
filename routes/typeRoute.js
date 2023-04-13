@@ -1,14 +1,23 @@
-// routes/types.js
 import express from "express";
 import TypeController from "../controllers/typeController";
 
-const typeController=new TypeController();
+const typeController = new TypeController();
+
 const router = express.Router();
 
-router.get("/", typeController.read);
-router.get("/:id", typeController.readOne);
-router.post("/", typeController.read);
+// Read all types
+router.get("/", typeController.read);        
+
+// Read a single type by id
+router.get("/:id", typeController.readOne);  
+
+// Create a new type
+router.post("/", typeController.create);     
+
+// Delete a type by id
 router.delete("/:id", typeController.delete);
-router.put("/:id", typeController.update);
+
+// Update a type by id
+router.put("/:id", typeController.update);   
 
 export default router;

@@ -1,4 +1,3 @@
-// controllers/types.js
 import TypeModel from "../models/type.js";
 class TypeController {
     async  create (req, res) {
