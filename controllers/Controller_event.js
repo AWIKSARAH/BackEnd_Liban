@@ -12,7 +12,7 @@ function add(req, res, next) {
     })
 }
 
-
+ 
 async function getAll(req, res, next) {
   try {
     const Event = await model.find({})
