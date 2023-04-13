@@ -5,34 +5,38 @@ class PlaceController {
   //This function creates a new place document in the db
   async create(req, res) {
     try {
+      // Create a new instance of the PlaceModel using the input data from the request body.
       const place = new PlaceModel({
         name: req.body.name,
         website: req.body.website,
         about: req.body.about,
         socialMedia: JSON.parse(req.body.socialMedia),
-        // tagIds: req.body.tagIds,
+        // tagIds: req.body.tagIds,   // Uncomment this line and provide the appropriate field name if you want to include tagIds.
         schedule: JSON.parse(req.body.schedule),
         location: req.body.location,
         image: req.body.image,
-        // typeId: req.body.typeId
+        // typeId: req.body.typeId     // Uncomment this line and provide the appropriate field name if you want to include typeId.
       });
       console.log(req.body.tagIds);
-
+      // Validate the input data using the schema defined for PlaceModel.
       await place.validate();
 
       const savedPlace = await place.save();
+      // Save the new place to the database and return a JSON response with a 201 status code and the saved place object.
+      
       return res.status(201).json({ success: true, savedPlace });
     } catch (error) {
+      // If the validation fails, catch the ValidationError and return a JSON response with a 422 
       if (error.name === "ValidationError") {
         const errors = {};
         Object.keys(error.errors).forEach((key) => {
           errors[key] = error.errors[key].message;
         });
-        errors.status=422
+        errors.status = 422;
         return res.status(422).json({ success: false, errors });
       }
-      console.error(error);
-      return res.status(500).json({ success: false, message: "Server error" });
+      // If any other error occurs during the process, catch the error and return a JSON response with a 500 status code and a "Server error" message.
+      return res.status(500).json({ success: false, message: "Server Error",error: error.message  });
     }
   }
   async read(req, res) {
