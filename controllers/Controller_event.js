@@ -10,7 +10,7 @@ function add(req, res, next) {
     .catch((err) => {
       res.status(400).send(err)
     })
-}
+}  
 
  
 async function getAll(req, res, next) {
