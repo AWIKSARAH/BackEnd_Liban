@@ -3,7 +3,8 @@ import fs from "fs";
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
-    callback(null, file.destination);
+    const destinationPath =  "./uploads"; // use a default value for destination
+    callback(null, destinationPath);
   },
   filename: function (req, file, callback) {
     callback(
@@ -19,9 +20,14 @@ export default function uploadImage(imageName, destination) {
   return function (req, res, next) {
     upload.single(imageName)(req, res, function (err) {
       if (err) {
+        console.error(err);
         return next(err);
       }
-      req.imagePath = `${destination}/${req.file.filename}`;
+      // Check if a file has been uploaded
+      if (req.file) {
+        const destinationPath = destination || "./uploads"; // use a default value for destination
+        req.body.image = `${destinationPath}/${req.file.filename}`;
+      }
       next();
     });
   };
@@ -36,4 +42,3 @@ export function deleteImage(imagePath) {
     }
   });
 }
-
