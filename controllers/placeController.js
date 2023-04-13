@@ -41,8 +41,20 @@ class PlaceController {
   }
   async read(req, res) {
     try {
-      const places = await PlaceModel.find();
-      return res.status(200).json({ success: true, places });
+      const pageNumber = req.query.page || 1;
+      const skipCount = (pageNumber - 1) * PAGE_SIZE;
+  
+      const totalPlaces = await PlaceModel.countDocuments();
+      const totalPages = Math.ceil(totalPlaces / PAGE_SIZE);
+  
+      const places = await PlaceModel.find().skip(skipCount).limit(PAGE_SIZE);
+  
+      return res.status(200).json({
+        success: true,
+        places: places,
+        pageNumber: pageNumber,
+        totalPages: totalPages
+      });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
