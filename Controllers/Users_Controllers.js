@@ -29,6 +29,12 @@ res.status(200).header("Authorization", "Bearer " + token).json({success: true, 
   res.status(500).json({success: false, error: error});
 }
 };
+
+/**
+ * Create a new user 
+ * @param {*} req 
+ * @param {*} res 
+ */
 export const createUser = async (req, res) => {
   const { name, email, password, IsAdmin } = req.body;
 
@@ -56,7 +62,15 @@ export const createUser = async (req, res) => {
  */
 export const getUsers = async (req, res) => {
   try {
-    const users = await Users.find({});
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const users = await Users.find({}).skip(startIndex).limit(limit);
+    const total = await Users.countDocuments({});
+
     if (!users) {
       return res.status(404).json({
         success: false,
@@ -66,6 +80,8 @@ export const getUsers = async (req, res) => {
     res.status(200).json({
       success: true,
       data: users,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
     });
   } catch (error) {
     console.error(error);
@@ -75,6 +91,7 @@ export const getUsers = async (req, res) => {
     });
   }
 };
+
 /**
  * Function to Delete a user from the database
  * @param {*} req
@@ -120,6 +137,65 @@ export const updateUser = async (req, res) => {
     res.status(200).json({
       success: true,
       data: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Server error",
+    });
+  }
+};
+
+
+/**
+ * Function to read a  user by id from the database
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const getUser = async (req, res ) => {
+  const id = req.params.id;
+  try {
+    const user = await Users.find({_id:id});
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "No users found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: "Server error",
+    });
+  }
+};
+
+/**
+ * Function to read a  user by id from the database
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
+export const getUserbyName = async (req, res ) => {
+  const name = req.query.name;
+  try {
+    const user = await Users.find({name: name});
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "No users found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: user,
     });
   } catch (error) {
     console.error(error);
