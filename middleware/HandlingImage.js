@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-export default function uploadImage(imageName, destination) {
+export default function uploadImage(imageName) {
   return function (req, res, next) {
     upload.single(imageName)(req, res, function (err) {
       if (err) {
@@ -25,7 +25,7 @@ export default function uploadImage(imageName, destination) {
       }
       // Check if a file has been uploaded
       if (req.file) {
-        const destinationPath = destination || "./uploads"; // use a default value for destination
+        const destinationPath = "./uploads"; // use a default value for destination
         req.body.image = `${destinationPath}/${req.file.filename}`;
       }
       next();

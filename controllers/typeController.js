@@ -1,4 +1,4 @@
-import TypeModel from "../models/type.js";
+import TypeModel from "../models/typeModel.js";
 class TypeController {
     async  create (req, res) {
     try {

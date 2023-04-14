@@ -1,5 +1,5 @@
 import express from "express";
-import TypeController from "../controllers/typeController";
+import TypeController from "../controllers/typeController.js";
 
 const typeController = new TypeController();
 

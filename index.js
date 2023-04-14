@@ -5,6 +5,7 @@ import User_Routes from "./routes/userRouter.js"; // import User model
 import { handle404Error, handleErrors } from "./HandlingError/HandleError.js";
 import connection from "./config/connection_db.js";
 import placeRouter from "./routes/placeRouter.js";
+import typeRouter from "./routes/typeRouter.js";
 // import testerMiddleware from "./middleware/testerFunction.js";
 const app = express();
 const port = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.use(express.static("public"));
 //INCLUDE THE ROUTING
 app.use('/api/user/',User_Routes);
 app.use("/api/places",  placeRouter);
+app.use("/api/types",typeRouter)
 //Handling Errors 404 and other
 app.use(handle404Error);
 app.use(handleErrors);
