@@ -92,7 +92,10 @@ class PlaceController {
       if (req.body.about) {
         placeUpdate.about = req.body.about;
       }
-      if (req.body.socialMedia) {
+      if (req.body.image) {
+        placeUpdate.image = req.body.image;
+      }
+      if (req.body.socialMedia[0].name||req.body.socialMedia[0].url) {
         placeUpdate.socialMedia = JSON.parse(req.body.socialMedia);
       }
       // if (req.body.tagIds) {

@@ -6,7 +6,7 @@ const router = express.Router();
 const placeController = new PlaceController();
 
 // Create a new place
-router.post("/", uploadImage("image"), placeController.create);
+router.post("/", uploadImage("place"), placeController.create);
 
 // place by type
 router.get("/places/type/:typeId", placeController.readByTypeId);

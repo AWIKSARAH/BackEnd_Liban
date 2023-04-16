@@ -18,5 +18,6 @@ export function handleErrors(err, req, res, next) {
     message: err.message,
     anotherMessage:"gg"
   });
+  console.log(err);
 }
 
