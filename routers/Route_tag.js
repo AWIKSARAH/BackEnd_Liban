@@ -9,6 +9,8 @@ router.get("/:id", controller.getById);
 router.get("/name/:name", controller.getByName);
 router.patch("/update/:id", controller.edit);
 router.delete("/Delete/:id", controller.Delete);
+router.delete("/Delete/sure/yes", controller.deleteAll);
+
 
 
 

@@ -1,6 +1,6 @@
 
 import model from "../models/Model_tag.js";
-
+const PAGE_SIZE =5;
 
 function add(req, res, next) {
   let Add = new model(req.body)
@@ -12,14 +12,35 @@ function add(req, res, next) {
 }
 
 
-async function getAll(req, res, next) {
+
+
+async function getAll(req, res) {
   try {
-    const Event = await model.find({})
-    res.status(200).send({ success: true, Event })
-  } catch (err) {
-    res.status(500).send({ success: false, err: err })
+    const pageNumber = req.query.page || 1;
+    const skipCount = (pageNumber - 1) * PAGE_SIZE;
+
+    const totalTag= await model.countDocuments();
+    const totalPages = Math.ceil(totalTag/ PAGE_SIZE);
+
+    const Tag = await model.find().skip(skipCount).limit(PAGE_SIZE);
+
+    return res.status(200).json({
+      success: true,
+      data: Tag,
+      pageNumber: pageNumber,
+      totalPages: totalPages
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 }
+
+
+
+
+
+
+
 async function getById(req, res, next) {
   try {
     const id = req.params.id
@@ -33,19 +54,38 @@ async function getById(req, res, next) {
   }
 }
 
+
+
+
+
 async function getByName(req, res, next) {
   try {
-    const name = req.params.name
-    
-    const event = await model.findOne({ name: name })
-    if (!event) {
-      return res.status(404).send({ success: false, error: 'Event not found' })
+    const name = req.params.name;
+    const pageNumber = req.query.page || 1;
+    const skipCount = (pageNumber - 1) * PAGE_SIZE;
+
+    const tag = await model
+      .find({ name: { $regex: name, $options: "i" } })
+      .skip(skipCount)
+      .limit(PAGE_SIZE);
+
+    const totalTag = await model.countDocuments({ name: { $regex: name, $options: "i" } });
+    const totalPages = Math.ceil(totalTag / PAGE_SIZE);
+
+    if (!tag.length) {
+      return res.status(404).send({ success: false, error: 'Tag not found' })
     }
-    res.status(200).send({ success: true, event })
+
+    res.status(200).send({ success: true, tag, pageNumber, totalPages });
   } catch (err) {
     res.status(500).send({ success: false, error: err.message })
   }
 }
+
+
+
+
+
 
 function edit(req, res, next) {
   const id = req.params.id;
@@ -86,5 +126,22 @@ function Delete(req, res, next) {
     })
 }
 
-const event = { add, getAll, getById, getByName, edit, Delete }
+
+
+async function deleteAll(req, res, next) {
+  try {
+    const response = await model.deleteMany();
+    res.status(200).send({
+      success: true,
+      message: "All documents deleted successfully.",
+      response,
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+
+
+const event = { add, getAll, getById, getByName, edit, Delete,deleteAll }
 export default event
