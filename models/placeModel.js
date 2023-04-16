@@ -138,11 +138,11 @@ const PlaceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  typeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Type",
-    required: true,
-  },
+  // typeId: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Type",
+  //   required: true,
+  // },
 });
 const PlaceModel = mongoose.model("Place", PlaceSchema);
 export default PlaceModel;

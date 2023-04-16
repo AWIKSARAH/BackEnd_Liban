@@ -37,6 +37,7 @@ class PlaceController {
   async read(req, res) {
     try {
       const pageNumber = req.query.page || 1;
+      const PAGE_SIZE = 10;
       const skipCount = (pageNumber - 1) * PAGE_SIZE;
   
       const totalPlaces = await PlaceModel.countDocuments();
@@ -76,27 +77,48 @@ class PlaceController {
           .status(404)
           .json({ success: false, message: "Place not found" });
       }
-
-      place.name = req.body.name;
-      place.website = req.body.website;
-      place.about = req.body.about;
-      place.socialMedia = req.body.socialMedia?JSON.parse(req.body.socialMedia):place.socialMedia;
-      place.tagIds = req.body.tagIds?JSON.parse(req.body.tagIds):place.tagIds;
-      place.schedule = req.body.schedule;
-      place.location = req.body.location;
-      place.typeId = req.body.typeId?JSON.parse(req.body.typeId):place.typeId;
-
-      // Check if a new image has been uploaded
-      if (req.body.image) {
+  
+      if (req.body.image && place.image) {
         // Delete the previous image
         deleteImage(place.image);
-        place.image = req.body.image;
       }
+      const placeUpdate = {}
+      if (req.body.name) {
+        placeUpdate.name = req.body.name;
+      }
+      if (req.body.website) {
+        placeUpdate.website = req.body.website;
+      }
+      if (req.body.about) {
+        placeUpdate.about = req.body.about;
+      }
+      if (req.body.socialMedia) {
+        placeUpdate.socialMedia = JSON.parse(req.body.socialMedia);
+      }
+      // if (req.body.tagIds) {
+      //   placeUpdate.tagIds = req.body.tagIds;
+      // }
+      if ( JSON.parse(req.body.schedule)["monday"||"tuesday"||"wednesday"||"thursday"||"friday"||"saturday"||"sunday"]["open"||"close"]) {
+        placeUpdate.schedule = JSON.parse(req.body.schedule);
+      }
+      if (req.body.location) {
+        placeUpdate.location = req.body.location;
+      }
+      if (req.body.image) {
+        placeUpdate.image = req.body.image;
+      }
+      // if (req.body.typeId) {
+      //   placeUpdate.typeId = JSON.parse(req.body.typeId);
+      // }
+      const updatedPlace = await PlaceModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: placeUpdate },
+        { new: true, runValidators: true }
+      );
+      
 
-      await place.validate();
-
-      const savedPlace = await place.save();
-      return res.status(200).json({ success: true, savedPlace });
+  
+      return res.status(200).json({ success: true, updatedPlace });
     } catch (error) {
       if (error.name === "ValidationError") {
         const errors = {};
@@ -106,9 +128,10 @@ class PlaceController {
         return res.status(422).json({ success: false, errors });
       }
       console.error(error);
-      return res.status(500).json({ success: false, message: "Server Error" });
+      return res.status(500).json({ success: false, message: "Server Error",error: error.message });
     }
   }
+  
 
   async delete(req, res) {
     try {
