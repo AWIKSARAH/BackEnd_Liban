@@ -101,9 +101,14 @@ class PlaceController {
       // if (req.body.tagIds) {
       //   placeUpdate.tagIds = req.body.tagIds;
       // }
-      if ( JSON.parse(req.body.schedule)["monday"||"tuesday"||"wednesday"||"thursday"||"friday"||"saturday"||"sunday"]["open"||"close"]) {
-        placeUpdate.schedule = JSON.parse(req.body.schedule);
+      const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+      const timeSlots = ["open", "close"];
+      const schedule = JSON.parse(req.body.schedule);
+      
+      if (daysOfWeek.some(day => timeSlots.some(slot => schedule[day] && schedule[day][slot]))) {
+        placeUpdate.schedule = schedule;
       }
+      
       if (req.body.location) {
         placeUpdate.location = req.body.location;
       }
