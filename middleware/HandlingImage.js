@@ -18,6 +18,7 @@ const upload = multer({ storage });
 
 export default function uploadImage(imageName) {
   return function (req, res, next) {
+    if (req.file){
     upload.single(imageName)(req, res, function (err) {
       if (err) {
         console.error(err);
@@ -28,8 +29,10 @@ export default function uploadImage(imageName) {
         const destinationPath = "./uploads"; // use a default value for destination
         req.body.image = `${destinationPath}/${req.file.filename}`;
       }
-      next();
-    });
+    });}else{
+      upload.none
+    }
+    next()
   };
 }
 
