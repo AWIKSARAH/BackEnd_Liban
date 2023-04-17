@@ -1,6 +1,7 @@
 import express from "express";
-const router = express.Router();
 import controller from "../controllers/Controller_event.js";
+
+const router = express.Router();
 
 
 

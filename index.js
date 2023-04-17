@@ -7,8 +7,8 @@ import connection from "./config/connection_db.js";
 import placeRouter from "./routes/placeRouter.js";
 import typeRouter from "./routes/typeRouter.js";
 import contactInfoModel from "./routes/contactInfoRouter.js";
-import event_page from "./routers/Route_event.js";
-import tag_page from "./routers/Route_tag.js";
+import event_page from "./routes/Route_event.js";
+import tag_page from "./routes/Route_tag.js";
 
 const app = express();
 const port = process.env.PORT || 3000;

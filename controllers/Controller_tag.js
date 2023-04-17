@@ -90,7 +90,7 @@ async function getByName(req, res, next) {
 function edit(req, res, next) {
   const id = req.params.id;
   const body = req.body;
-
+console.log(body);
   model.updateOne({ _id: id }, { $set: body })
     .then(response => {
       if (response.nModified === 0) {

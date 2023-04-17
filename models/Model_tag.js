@@ -22,3 +22,8 @@ const tagschema = new Schema(
 
 const Event = model("Tag", tagschema);
 export default Event;
+
+
+
+
+
