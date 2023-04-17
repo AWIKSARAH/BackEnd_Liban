@@ -1,9 +1,10 @@
-import contactModel from "../models/contactInfoModel.js";
 
+import contactModel from "../models/contactInfoModel.js";
+import {deleteImage} from '../middleware/HandlingImage.js'
 export const create = (req, res, next) => {
 
   const { socialMedia, aboutUs } = req.body;
-  const logo = req.body.contact;
+  const logo = req.file.path;
   const social = contactModel.create({
     socialMedia: socialMedia,
     logo: logo,
@@ -12,8 +13,6 @@ export const create = (req, res, next) => {
   social
     .then((ress) => {
       if (!ress) {
-        // const err = new Error(`Error creating contact`);
-        // err.status = 404;
       res.status(500).json({ success: false, error: err });
       }
       return res.status(200).json({ success: true, data: ress });
@@ -42,3 +41,38 @@ export const get = (req, res, next) => {
       return next(err);
     });
 };
+
+
+/** 
+ * Functioon to update a contact with Information 
+ */
+export const updateContact = async (req, res) => {
+  const _id = req.params.id;
+  try {
+    const oldContact = await contactModel.findOne({_id:_id});
+
+    if (!oldContact) {
+      return res.status(404).json({ success: false, error: "Contact not found" });
+    }
+
+    const { socialMedia, aboutUs } = req.body;
+    const logo = req.file.path || oldContact.logo;
+
+    console.log(oldContact.logo);
+    if (logo) {
+      const imagePath = oldContact.logo
+      deleteImage(`${imagePath}`);
+    } else{console.log('nonono');}
+
+    const updatedContact = await contactModel.findByIdAndUpdate(
+      oldContact._id,
+      { socialMedia, logo, aboutUs },
+      { new: true }
+    );
+
+    return res.status(200).json({ success: true, data: updatedContact });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, error });
+  }
+}
