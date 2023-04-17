@@ -37,6 +37,11 @@ const eventSchema = new Schema(
         
       },
     ],
+    typeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Type",
+      required: true,
+    },
     
   },
   {
@@ -46,7 +51,7 @@ const eventSchema = new Schema(
 
 eventSchema.pre('find', function() {
   console.log(this.tagIds);
-  this.populate('tagIds');
+  this.populate('tagIds','typeId');
 });
 
 const Event = model("Event", eventSchema);
