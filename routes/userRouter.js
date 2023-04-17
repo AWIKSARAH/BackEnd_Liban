@@ -12,7 +12,7 @@ router.get('/:id', getUser);
 router.post('/', createUser);
 
 router.delete('/:id', auth, isAdminOrSuperAdmin, deleteUser);
-router.patch('/:id', auth, updateUser);
+router.patch('/:id', updateUser);
 
 export default router;   
 

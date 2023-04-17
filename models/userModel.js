@@ -27,16 +27,24 @@ const User_Schema = new mongoose.Schema({
     minLenght: 8,
     required: [true, "Please enter a Password, this is required"],
     trim: true,
-    select: false,
   },
 });
 
 
-User_Schema.pre('save',async function (next) {
+User_Schema.pre('save', async function (next) {
   const salt = await bcryptjs.genSalt(10);
   this.password = await bcryptjs.hash(this.password, salt)
   next();
-})
+});
+
+User_Schema.pre('findOneAndUpdate', async function (next) {
+  if (this._update.password) {
+    const salt = await bcryptjs.genSalt(10);
+    this._update.password = await bcryptjs.hash(this._update.password, salt);
+  }
+  next();
+});
+
 
 User_Schema.methods.createJWT = function(){
   console.log(this._id);
