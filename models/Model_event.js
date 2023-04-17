@@ -12,11 +12,23 @@ const eventSchema = new Schema(
     },
     start_date: {
       type: Date,
-      // required: true,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value < this.end_date && value > new Date();
+        },
+        message: props => `Invalid start date`
+      }
     },
     end_date: {
       type: Date,
-      // required: true,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value > this.start_date && value > new Date();
+        },
+        message: props => `Invalid end date`
+      }
     },
     location: {
       type: String,
