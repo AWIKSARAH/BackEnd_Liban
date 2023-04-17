@@ -7,9 +7,13 @@ import connection from "./config/connection_db.js";
 import placeRouter from "./routes/placeRouter.js";
 import typeRouter from "./routes/typeRouter.js";
 import contactInfoModel from "./routes/contactInfoRouter.js";
-// import testerMiddleware from "./middleware/testerFunction.js";
+import event_page from "./routers/Route_event.js";
+import tag_page from "./routers/Route_tag.js";
+
 const app = express();
 const port = process.env.PORT || 3000;
+
+
 
 connection();
 
@@ -19,10 +23,10 @@ if (process.env.DEV_NAME === "developpment") {
 app.get("/", function (req, res) {
   res.send(":)))(((:");
 });
-app.use(cors());
-app.use(express.static("public"));
-
 app.use(express.json());
+app.use(cors());
+
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
@@ -31,6 +35,9 @@ app.use('/api/user/',User_Routes);
 app.use('/api/info/',contactInfoModel);
 app.use("/api/places",  placeRouter);
 app.use("/api/types",typeRouter)
+app.use("/api/event", event_page);
+app.use("/api/tag", tag_page);
+
 //Handling Errors 404 and other
 // app.use(handle404Error);
 // app.use(handleErrors);
