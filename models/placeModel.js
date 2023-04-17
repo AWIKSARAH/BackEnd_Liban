@@ -138,11 +138,22 @@ const PlaceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // typeId: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "Type",
-  //   required: true,
-  // },
+  typeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Type",
+    required: true,
+  },
+  tagIds:[ {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tag",
+    required: true,
+  }],
 });
 const PlaceModel = mongoose.model("Place", PlaceSchema);
 export default PlaceModel;
+
+
+PlaceSchema.pre('find', function() {
+  console.log(this.tagIds);
+  this.populate('tagIds','typeId');
+});
