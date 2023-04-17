@@ -32,8 +32,8 @@ app.use('/api/info/',contactInfoModel);
 app.use("/api/places",  placeRouter);
 app.use("/api/types",typeRouter)
 //Handling Errors 404 and other
-app.use(handle404Error);
-app.use(handleErrors);
+// app.use(handle404Error);
+// app.use(handleErrors);
 
 app.listen(port, () => {
   console.log(`Hello :) Your Server Running on :  http://localhost:${port}`);
