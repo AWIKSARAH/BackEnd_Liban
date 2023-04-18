@@ -1,4 +1,3 @@
-
 import Users from "../models/userModel.js";
 
 export const login = async (req, res) => {
@@ -40,6 +39,7 @@ export const login = async (req, res) => {
  * Create a new user
  * @param {*} req
  * @param {*} res
+ * @returns
  */
 export const createUser = async (req, res) => {
   const { name, email, password, IsAdmin } = req.body;
@@ -88,6 +88,7 @@ export const getUsers = async (req, res) => {
       data: users,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
+      endIndex: endIndex,
     });
   } catch (error) {
     console.error(error);
@@ -106,9 +107,12 @@ export const getUsers = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
   try {
-
     const total = await Users.countDocuments({});
-if (total === 1 ){ return res.status(405).json({success:false , error:'Cann\'t Delet yourself '});}
+    if (total === 1) {
+      return res
+        .status(405)
+        .json({ success: false, error: "Cann\'t Delete yourself " });
+    }
     const user = await Users.findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({
@@ -116,7 +120,7 @@ if (total === 1 ){ return res.status(405).json({success:false , error:'Cann\'t D
         error: "User not found",
       });
     }
-console.log(total);
+    console.log(total);
     res.status(200).json({
       success: true,
       error: "User deleted successfully",
@@ -130,36 +134,6 @@ console.log(total);
   }
 };
 
-/**
- * Delete Users By select the id of the user
- * @param {*} req 
- * @param {*} res 
- * @returns 
- */
-export const deleteUsers = async (req, res) => {
-  try {
-    const { ids } = req.body;
-    const result = await Users.deleteMany({ _id: { $in: ids } });
-    if (result.deletedCount === 0) {
-      return res.status(404).json({
-        success: false,
-        error: "Users not found",
-      });
-    }
-    const total = await Users.countDocuments({});
-    console.log(total);
-    res.status(200).json({
-      success: true,
-      message: `Deleted ${result.deletedCount} user(s) successfully`,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: "Server error",
-    });
-  }
-};
 
 /**
  * function to Update user profile
@@ -226,7 +200,9 @@ export const getUser = async (req, res) => {
 export const getUserbyName = async (req, res) => {
   const name = req.query.name;
   try {
-    const user = await Users.find({ name: { $regex: `.*${name}.*`, $options: 'i' } });
+    const user = await Users.find({
+      name: { $regex: `.*${name}.*`, $options: "i" },
+    });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -245,12 +221,3 @@ export const getUserbyName = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
