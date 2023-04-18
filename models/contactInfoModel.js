@@ -31,7 +31,7 @@ const contactInfo = new mongoose.Schema({
       },
     logo:{
         type:String,
-        required: true
+        // required: true
     },
     aboutUs: {
         type: String,

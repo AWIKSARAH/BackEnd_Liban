@@ -1,7 +1,6 @@
-// import multer from "multer";
-// import fs from "fs";
+import multer from "multer";
+import fs from "fs";
 
-<<<<<<< HEAD:middleware/HandlingImage.js
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
     const destinationPath = "./uploads";
@@ -14,23 +13,9 @@ const storage = multer.diskStorage({
     );
   },
 });
-=======
-// const storage = multer.diskStorage({
-//   destination: function (req, file, callback) {
-//     callback(null, file.destination);
-//   },
-//   filename: function (req, file, callback) {
-//     callback(
-//       null,
-//       file.fieldname + "-" + Date.now() + "." + file.mimetype.split("/")[1]
-//     );
-//   },
-// });
->>>>>>> origin/ayad-newsletter:midlleware/Handling_Image.js
 
 // const upload = multer({ storage });
 
-<<<<<<< HEAD:middleware/HandlingImage.js
 export default function uploadImage(imageName) {
   return function (req, res, next) {
     // Use the `upload.none()` middleware for requests without an image file
@@ -61,27 +46,3 @@ export function deleteImage(imagePath) {
     }
   });
 }
-=======
-// export default function uploadImage(imageName, destination) {
-//   return function (req, res, next) {
-//     upload.single(imageName)(req, res, function (err) {
-//       if (err) {
-//         return next(err);
-//       }
-//       req.imagePath = `${destination}/${req.file.filename}`;
-//       next();
-//     });
-//   };
-// }
-
-// export function deleteImage(imagePath) {
-//   fs.unlink(imagePath, (err) => {
-//     if (err) {
-//       console.error(`Error deleting image file: ${err}`);
-//     } else {
-//       console.log(`Image file ${imagePath} has been deleted`);
-//     }
-//   });
-// }
-
->>>>>>> origin/ayad-newsletter:midlleware/Handling_Image.js

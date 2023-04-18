@@ -4,7 +4,7 @@ import {deleteImage} from '../middleware/HandlingImage.js'
 export const create = (req, res, next) => {
 
   const { socialMedia, aboutUs } = req.body;
-  const logo = req.file.path;
+  const logo = req.body.image;
   const social = contactModel.create({
     socialMedia: socialMedia,
     logo: logo,
