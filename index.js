@@ -8,7 +8,7 @@ import placeRouter from "./routes/placeRouter.js";
 import typeRouter from "./routes/typeRouter.js";
 import contactInfo from "./routes/contactInfoRouter.js";
 import event_page from "./routes/Route_event.js";
-import tagRouter from "./routes/tagRoute.js";
+import tagRouter from "./routes/tagRouter.js";
 import newsletter from './routes/route_news.js'
 import blogRouter from './routes/blogRoute.js'
 
