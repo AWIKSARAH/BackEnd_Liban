@@ -1,5 +1,5 @@
 
-import model from "../models/Model_tag.js";
+import model from "../models/tagModel.js";
 const PAGE_SIZE =5;
 
 function add(req, res, next) {

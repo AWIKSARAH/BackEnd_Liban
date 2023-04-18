@@ -9,7 +9,7 @@ const placeController = new PlaceController();
 router.post("/", uploadImage("place"), placeController.create);
 
 // place by type
-router.get("/places/type/:typeId", placeController.readByTypeId);
+router.get("/type/:typeId", placeController.readByTypeId);
 
 // Read a place by ID
 router.get("/:id", placeController.readOne);

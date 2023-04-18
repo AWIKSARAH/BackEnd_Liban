@@ -1,6 +1,6 @@
-import Model from "../models/models_blog.js";
+import Model from "../models/blogModel.js";
 import fs from "fs";
-import path from "path";
+// import path from "path";
 
 class Controller {
   // Get All Blogs

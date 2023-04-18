@@ -6,11 +6,11 @@ import { handle404Error, handleErrors } from "./HandlingError/HandleError.js";
 import connection from "./config/connection_db.js";
 import placeRouter from "./routes/placeRouter.js";
 import typeRouter from "./routes/typeRouter.js";
-import contactInfoModel from "./routes/contactInfoRouter.js";
+import contactInfo from "./routes/contactInfoRouter.js";
 import event_page from "./routes/Route_event.js";
-import tag_page from "./routes/Route_tag.js";
+import tagRouter from "./routes/tagRoute.js";
 import newsletter from './routes/route_news.js'
-import blog from './routes/route-blog.js'
+import blogRouter from './routes/blogRoute.js'
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,7 +19,7 @@ const port = process.env.PORT || 3000;
 
 connection();
 
-if (process.env.DEV_NAME === "developpment") {
+if (process.env.DEV_NAME === "development") {
   app.use(morgan("dev"));
 }
 app.get("/", function (req, res) {
@@ -34,13 +34,13 @@ app.use(express.static("public"));
 
 //INCLUDE THE ROUTING
 app.use('/api/user/',User_Routes);
-app.use('/api/info/',contactInfoModel);
+app.use('/api/info/',contactInfo);
 app.use("/api/places",  placeRouter);
 app.use("/api/types",typeRouter)
 app.use("/api/event", event_page);
-app.use("/api/tag", tag_page);
+app.use("/api/tag", tagRouter);
 app.use("/dashboard/news",newsletter);
-app.use("/dashboard/blog",blog);
+app.use("/dashboard/blog",blogRouter);
 
 //Handling Errors 404 and other
 // app.use(handle404Error);

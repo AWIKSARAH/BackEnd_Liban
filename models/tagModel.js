@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
-const tagschema = new Schema(
+const tagSchema = new Schema(
   {
    
     name: {
@@ -20,7 +20,7 @@ const tagschema = new Schema(
   }
 );
 
-const Event = model("Tag", tagschema);
+const Event = model("Tag", tagSchema);
 export default Event;
 
 

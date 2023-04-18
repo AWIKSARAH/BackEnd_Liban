@@ -98,9 +98,9 @@ class PlaceController {
       if (req.body.socialMedia[0].name||req.body.socialMedia[0].url) {
         placeUpdate.socialMedia = JSON.parse(req.body.socialMedia);
       }
-      // if (req.body.tagIds) {
-      //   placeUpdate.tagIds = req.body.tagIds;
-      // }
+      if (req.body.tagIds[0]) {
+        placeUpdate.tagIds = JSON.parse(req.body.tagIds);
+      }
       const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
       const timeSlots = ["open", "close"];
       const schedule = JSON.parse(req.body.schedule);
@@ -115,9 +115,9 @@ class PlaceController {
       if (req.body.image) {
         placeUpdate.image = req.body.image;
       }
-      // if (req.body.typeId) {
-      //   placeUpdate.typeId = JSON.parse(req.body.typeId);
-      // }
+      if (req.body.typeId) {
+        placeUpdate.typeId = JSON.parse(req.body.typeId);
+      }
       const updatedPlace = await PlaceModel.findOneAndUpdate(
         { _id: req.params.id },
         { $set: placeUpdate },
@@ -169,6 +169,24 @@ class PlaceController {
       res.status(500).json({ success: false, message: "Server error" });
     }
   }
+  async searchPlaceByName(req, res) {
+    try {
+    const searchQuery = req.query.name;
+    const perPage = 10;
+    const page = parseInt(req.query.page) || 1;
+    const places = await PlaceModel.find({ name: { $regex: '^' + searchQuery } })
+    .skip((perPage * page) - perPage)
+    .limit(perPage);
+    if (!places || places.length === 0) {
+    return res.status(404).json({ success: false, message: 'No matching places found' });
+    }
+    const totalCount = await PlaceModel.countDocuments({ name: { $regex: '^' + searchQuery } });
+    const totalPages = Math.ceil(totalCount / perPage);
+    return res.status(200).json({ success: true, places, currentPage: page, totalPages });
+    } catch (error) {
+    return res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    }
+    }
 }
 
 export default PlaceController;
