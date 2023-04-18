@@ -98,6 +98,7 @@ export const getUsers = async (req, res) => {
   }
 };
 
+
 /**
  * Function to Delete a user from the database
  * @param {*} req
