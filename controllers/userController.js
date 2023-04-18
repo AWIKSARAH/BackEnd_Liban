@@ -221,3 +221,32 @@ export const getUserbyName = async (req, res) => {
     });
   }
 };
+
+
+/**
+ * Thhis Function it updates the password field
+ * @param {*} req 
+ * @param {*} res 
+ * @returns Object statuts of the success and the message or data
+ */
+export const updatePassword = async (req, res) => {
+  const userId = req.params.id;
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    const user = await Users.findById(userId).select('password');
+    
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Old password is incorrect' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+};
