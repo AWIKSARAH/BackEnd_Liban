@@ -19,10 +19,11 @@ const storage = multer.diskStorage({
 export default function uploadImage(imageName) {
   return function (req, res, next) {
     // Use the `upload.none()` middleware for requests without an image file
-  
+
 
     // Use the `upload.single()` middleware for requests with an image file
     upload.single(imageName)(req, res, function (err) {
+      try{
       if (err) {
         return next(err);
       }
@@ -30,6 +31,8 @@ export default function uploadImage(imageName) {
       if (req.file) {
         const destinationPath = "./uploads"; // use a default value for destination
         req.body.image = `${destinationPath}/${req.file.filename}`;
+      }}catch(err){
+        req.error = err;
       }
       next();
     });
