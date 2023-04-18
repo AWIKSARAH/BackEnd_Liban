@@ -1,5 +1,5 @@
 import Users from "../models/userModel.js";
-
+import auth from '../middleware/auth.js';
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -139,10 +139,12 @@ export const deleteUser = async (req, res) => {
  * function to Update user profile
  */
 export const updateUser = async (req, res) => {
+  const {name,email} = req.body;
   try {
-    const updatedUser = await Users.findByIdAndUpdate(req.params.id, req.body, {
+    const updatedUser = await Users.findByIdAndUpdate(req.params.id, {name: name,email:email}, {
       new: true,
     });
+
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
@@ -238,15 +240,15 @@ export const updatePassword = async (req, res) => {
     
     const isMatch = await user.comparePassword(oldPassword);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Old password is incorrect' });
+      return res.status(400).json({ success:false,error: 'Old password is incorrect' });
     }
 
     user.password = newPassword;
     await user.save();
 
-    return res.json({ message: 'Password updated successfully' });
+    return res.json({success:true, message: 'Password updated successfully' });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({success:false, error: 'Server error' });
   }
 };

@@ -4,16 +4,16 @@ import auth from '../middleware/auth.js';
 import isAdminOrSuperAdmin from '../middleware/Authentication.js';
 
 const router = express.Router();
-router.get('/search', getUserbyName);
+router.get('/search',  auth,isAdminOrSuperAdmin,getUserbyName);
 
 router.post('/login', login);
-router.patch('/profile/:id', updatePassword);
-router.get('/', getUsers);
-router.get('/:id', getUser);
-router.post('/', createUser);
+router.patch('/profile/:id', auth, updatePassword);
+router.get('/', auth,isAdminOrSuperAdmin, getUsers);
+router.get('/:id', auth, getUser);
+router.post('/', auth, isAdminOrSuperAdmin,createUser);
 
 router.delete('/:id', auth, isAdminOrSuperAdmin, deleteUser);
-router.patch('/:id', updateUser);
+router.patch('/:id',   updateUser);
 
 export default router;   
 
