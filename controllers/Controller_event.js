@@ -14,26 +14,6 @@ function add(req, res, next) {
 }  
 
  
-// async function getAll(req, res) {
-//   try {
-//     const pageNumber = req.query.page || 1;
-//     const skipCount = (pageNumber - 1) * PAGE_SIZE;
-
-//     const totalEvent= await model.countDocuments();
-//     const totalPages = Math.ceil(totalEvent/ PAGE_SIZE);
-
-//     const Event = await model.find().skip(skipCount).limit(PAGE_SIZE);
-
-//     return res.status(200).json({
-//       success: true,
-//       data: Event,
-//       pageNumber: pageNumber,
-//       totalPages: totalPages
-//     });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// }
 
 async function getAll(req, res,next) {
   try {
@@ -46,7 +26,7 @@ async function getAll(req, res,next) {
       console.log(req.params.type)
     }
     if (req.query.title) {
-      filter.title = req.query.title;
+      filter.title =  { $regex: `.*${req.query.title}.*`, $options: "i" };
       
     }
 
