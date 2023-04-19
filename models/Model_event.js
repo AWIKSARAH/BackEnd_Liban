@@ -52,7 +52,7 @@ const eventSchema = new Schema(
     typeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Type",
-      required: true,
+      required: false,
     },
     
   },
