@@ -39,8 +39,8 @@ app.use("/api/places",  placeRouter);
 app.use("/api/types",typeRouter)
 app.use("/api/event", event_page);
 app.use("/api/tag", tagRouter);
-app.use("/dashboard/news",newsletter);
-app.use("/dashboard/blog",blogRouter);
+app.use("/api/news",newsletter);
+app.use("/api/blog",blogRouter);
 
 //Handling Errors 404 and other
 // app.use(handle404Error);
