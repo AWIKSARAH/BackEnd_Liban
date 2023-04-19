@@ -60,7 +60,7 @@ async function getById(req, res, next) {
 
 async function getByTitle(req, res, next) {
   try {
-    const title = req.params.title;
+    const title = req.query.title;
     const pageNumber = req.query.page || 1;
     const skipCount = (pageNumber - 1) * PAGE_SIZE;
 
