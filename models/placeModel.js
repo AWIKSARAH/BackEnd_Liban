@@ -148,12 +148,16 @@ const PlaceSchema = new mongoose.Schema({
     ref: "Tag",
     required: true,
   }],
+  confitmation:{
+    type: Boolean,
+    default: false,
+  }
 });
 const PlaceModel = mongoose.model("Place", PlaceSchema);
 export default PlaceModel;
 
 
-PlaceSchema.pre(['find','findOneAndUpdate','save','create','updateOne'], function() {
+PlaceSchema.pre(['find','findOneAndUpdate','updateOne'], function() {
   this.populate({ path: 'tagIds', select: 'name description' })
       .populate('typeId', 'name description');
 });

@@ -34,12 +34,36 @@ const eventSchema = new Schema(
       type: String,
       required: true,
     },
-    id_social_media: {
-      type: Number,
+    socialMedia: {
+      type: [
+        {
+          name: {
+            type: String,
+            required: true,
+            minlength: [
+              2,
+              "Social media name must be at least 2 characters long",
+            ],
+            maxlength: [100, "Social media name must not exceed 100 characters"],
+          },
+          url: {
+            type: String,
+            required: true,
+            minlength: [2, "Social media url must be at least 2 characters long"],
+            maxlength: [500, "Social media url must not exceed 500 characters"],
+          },
+        },
+      ],
+      validate: {
+        validator: function (v) {
+          return v && v.length > 0;
+        },
+        message: "At least one social media account is required",
+      },
     },
     image: {
       type: String,
-      required: false,
+      required: true,
     },
     tagIds: [
       {
@@ -65,7 +89,7 @@ const eventSchema = new Schema(
   }
 );
 
-eventSchema.pre(['find','findOneAndUpdate','save','create','updateOne'], function() {
+eventSchema.pre(['find','findOneAndUpdate','updateOne'], function() {
   console.log(this.tagIds);
   this.populate({ path: 'tagIds', select: 'name description' })
       .populate('typeId', 'name description');

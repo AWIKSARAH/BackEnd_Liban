@@ -9,7 +9,7 @@ function add(req, res, next) {
   Add.save()
     .then((response) => res.status(200).send({ success: true, response }))
     .catch((err) => {
-      res.status(400).send(err)
+      res.status(400).send(err.message)
     })
 }  
 
@@ -35,23 +35,18 @@ function add(req, res, next) {
 //   }
 // }
 
-async function getAll(req, res) {
+async function getAll(req, res,next) {
   try {
     const pageNumber = req.query.page || 1;
     const skipCount = (pageNumber - 1) * PAGE_SIZE;
-
+    console.lo
     const filter = {};
-    if (req.query.type) {
-      const type = await TypeModel.findOne({ name: req.query.type });
-      // console.log(type);
-      if (type) {
-        filter.typeId = type._id;
-        console.log(filter);
-      }
+    if (req.params.type) {
+      filter.typeId = req.params.type
+      console.log(req.params.type)
     }
     if (req.query.title) {
-        // filter.title = title;
-        console.log(req.query.title);
+      filter.title = req.query.title;
       
     }
 

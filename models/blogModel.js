@@ -23,7 +23,7 @@ const Blogschema = new Schema({
     }
 )
     ;
-Blogschema.pre(["find", "findOne", "save", "create"], function () {
+Blogschema.pre(["find", "findOne"], function () {
     this.populate(["tag_id"]);
 });
 
