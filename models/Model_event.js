@@ -78,12 +78,13 @@ const eventSchema = new Schema(
       ref: "Type",
       required: true,
     },
-    confitmation:{
+    confirmation:{
       type: Boolean,
       default: false,
     }
     
   },
+  
   {
     collection: "Event",
   }
