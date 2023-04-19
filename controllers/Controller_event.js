@@ -1,6 +1,7 @@
 
 
-import model from '../models/Model_event.js';
+import model from '../models/Model_event.js';//TypeModel
+import TypeModel from '../models/typeModel.js';//TypeModel
 const PAGE_SIZE = 5;
 
 function add(req, res, next) {
@@ -13,19 +14,56 @@ function add(req, res, next) {
 }  
 
  
+// async function getAll(req, res) {
+//   try {
+//     const pageNumber = req.query.page || 1;
+//     const skipCount = (pageNumber - 1) * PAGE_SIZE;
+
+//     const totalEvent= await model.countDocuments();
+//     const totalPages = Math.ceil(totalEvent/ PAGE_SIZE);
+
+//     const Event = await model.find().skip(skipCount).limit(PAGE_SIZE);
+
+//     return res.status(200).json({
+//       success: true,
+//       data: Event,
+//       pageNumber: pageNumber,
+//       totalPages: totalPages
+//     });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// }
+
 async function getAll(req, res) {
   try {
     const pageNumber = req.query.page || 1;
     const skipCount = (pageNumber - 1) * PAGE_SIZE;
 
-    const totalEvent= await model.countDocuments();
+    const filter = {};
+    if (req.query.type) {
+      const type = await TypeModel.findOne({ name: req.query.type });
+      // console.log(type);
+      if (type) {
+        filter.typeId = type._id;
+        console.log(filter);
+      }
+    }
+    if (req.query.title) {
+        // filter.title = title;
+        console.log(req.query.title);
+      
+    }
+
+  
+    const totalEvent= await model.countDocuments(filter);
     const totalPages = Math.ceil(totalEvent/ PAGE_SIZE);
 
-    const Event = await model.find().skip(skipCount).limit(PAGE_SIZE);
+    const events = await model.find(filter).skip(skipCount).limit(PAGE_SIZE);
 
     return res.status(200).json({
       success: true,
-      data: Event,
+      data: events,
       pageNumber: pageNumber,
       totalPages: totalPages
     });
