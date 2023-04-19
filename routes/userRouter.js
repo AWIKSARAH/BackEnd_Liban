@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/search',  auth,isAdminOrSuperAdmin,getUserbyName);
 
 router.post('/login', login);
-router.patch('/profile/:id', auth, updatePassword);
+router.patch('/profile', auth, updatePassword);
 router.get('/', auth,isAdminOrSuperAdmin, getUsers);
 router.get('/:id', auth, getUser);
 router.post('/', auth, isAdminOrSuperAdmin,createUser);
