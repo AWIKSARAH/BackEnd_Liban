@@ -1,5 +1,5 @@
 import Users from "../models/userModel.js";
-
+import auth from "../middleware/auth.js";
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -112,7 +112,7 @@ export const deleteUser = async (req, res) => {
     if (total === 1) {
       return res
         .status(405)
-        .json({ success: false, error: "Cann\'t Delete yourself " });
+        .json({ success: false, error: "Cann't Delete yourself " });
     }
     const user = await Users.findByIdAndDelete(req.params.id);
     if (!user) {
@@ -135,15 +135,20 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-
 /**
  * function to Update user profile
  */
 export const updateUser = async (req, res) => {
+  const { name, email } = req.body;
   try {
-    const updatedUser = await Users.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updatedUser = await Users.findByIdAndUpdate(
+      req.params.id,
+      { name: name, email: email },
+      {
+        new: true,
+      }
+    );
+
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
@@ -221,5 +226,46 @@ export const getUserbyName = async (req, res) => {
       error: "Server error",
     });
 
+  }
+};
+
+/**
+ * Thhis Function it updates the password field
+ * @param {*} req
+ * @param {*} res
+ * @returns Object statuts of the success and the message or data
+ */
+export const updatePassword = async (req, res) => {
+  const userId = req.user._id;
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    if (!oldPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Old password and new password required",
+        });
+    }
+    const user = await Users.findById(userId).select("password");
+
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Old password is incorrect" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, error: "Server error" });
   }
 };
