@@ -220,5 +220,6 @@ export const getUserbyName = async (req, res) => {
       success: false,
       error: "Server error",
     });
+
   }
 };

@@ -32,14 +32,14 @@ const eventSchema = new Schema(
     },
     location: {
       type: String,
-      // required: true,
+      required: true,
     },
     id_social_media: {
       type: Number,
     },
     image: {
       type: String,
-      // required: false,
+      required: false,
     },
     tagIds: [
       {
@@ -54,6 +54,10 @@ const eventSchema = new Schema(
       ref: "Type",
       required: true,
     },
+    confitmation:{
+      type: Boolean,
+      default: false,
+    }
     
   },
   {
@@ -61,10 +65,13 @@ const eventSchema = new Schema(
   }
 );
 
-eventSchema.pre('find', function() {
+eventSchema.pre(['find','findOneAndUpdate','save','create','updateOne'], function() {
   console.log(this.tagIds);
-  this.populate('tagIds','typeId');
+  this.populate({ path: 'tagIds', select: 'name description' })
+      .populate('typeId', 'name description');
 });
+
+
 
 const Event = model("Event", eventSchema);
 export default Event;

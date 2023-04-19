@@ -153,7 +153,7 @@ const PlaceModel = mongoose.model("Place", PlaceSchema);
 export default PlaceModel;
 
 
-PlaceSchema.pre('find', function() {
-  console.log(this.tagIds);
-  this.populate('tagIds','typeId');
+PlaceSchema.pre(['find','findOneAndUpdate','save','create','updateOne'], function() {
+  this.populate({ path: 'tagIds', select: 'name description' })
+      .populate('typeId', 'name description');
 });
