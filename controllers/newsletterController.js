@@ -1,4 +1,4 @@
-import model from '../models/models_news.js';
+import model from '../models/newsletterModel.js';
 const create = async (req,res) => {
     const body = req.body.email;
    try {

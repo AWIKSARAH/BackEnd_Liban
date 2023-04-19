@@ -1,5 +1,5 @@
 import PlaceModel from "../models/placeModel.js";
-import { deleteImage } from "../middleware/HandlingImage.js";
+import { deleteImage } from "../middleware/imageHandlerMiddleware.js";
 
 class PlaceController {
   //This function creates a new place document in the db

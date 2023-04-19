@@ -1,6 +1,6 @@
 
 import contactModel from "../models/contactInfoModel.js";
-import {deleteImage} from '../middleware/HandlingImage.js'
+import {deleteImage} from '../middleware/imageHandlerMiddleware.js'
 export const create = (req, res, next) => {
 
   const { socialMedia, aboutUs } = req.body;

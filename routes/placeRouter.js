@@ -1,6 +1,6 @@
 import express from "express";
 import PlaceController from "../controllers/placeController.js";
-import uploadImage from "../middleware/HandlingImage.js";
+import uploadImage from "../middleware/imageHandlerMiddleware.js";
 
 const router = express.Router();
 const placeController = new PlaceController();

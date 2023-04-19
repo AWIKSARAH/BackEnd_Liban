@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import controller from "../controllers/controller_newsletter.js";
+import controller from "../controllers/newsletterController.js";
 
 
 

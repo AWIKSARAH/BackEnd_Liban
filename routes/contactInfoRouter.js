@@ -1,9 +1,9 @@
 import express from 'express';
 import {get,create,updateContact} from '../controllers/contactInfoController.js';
-import auth from '../middleware/auth.js';
-import isAdminOrSuperAdmin from '../middleware/Authentication.js';
-import uploadImage from '../middleware/HandlingImage.js'
-import test from '../middleware/testerFunction.js'
+import auth from '../middleware/jwtAuthenticationMiddleware.js';
+// import isAdminOrSuperAdmin from '../middleware/adminAuthenticaitonMiddleware.js';
+import uploadImage from '../middleware/imageHandlerMiddleware.js'
+import test from '../middleware/bodyTesterMiddleware.js'
 const router = express.Router();
 
 router.get('/',get);

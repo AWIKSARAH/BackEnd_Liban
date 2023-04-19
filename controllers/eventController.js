@@ -1,6 +1,6 @@
 
 
-import model from '../models/Model_event.js';//TypeModel
+import model from '../models/eventModel.js';//TypeModel
 import TypeModel from '../models/typeModel.js';//TypeModel
 const PAGE_SIZE = 5;
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import { createUser, deleteUser, getUsers, updatePassword,getUser,updateUser,getUserbyName, login } from '../controllers/userController.js';
-import auth from '../middleware/auth.js';
-import isAdminOrSuperAdmin from '../middleware/Authentication.js';
+import auth from '../middleware/jwtAuthenticationMiddleware.js';
+import isAdminOrSuperAdmin from '../middleware/adminAuthenticaitonMiddleware.js';
 
 const router = express.Router();
 router.get('/search',  auth,isAdminOrSuperAdmin,getUserbyName);

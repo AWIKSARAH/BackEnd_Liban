@@ -1,5 +1,5 @@
 import express from "express";
-import imageUpload from "../middleware/HandlingImage.js";
+import imageUpload from "../middleware/imageHandlerMiddleware.js";
 import controller from "../controllers/blogController.js";
 
 const router = express.Router();

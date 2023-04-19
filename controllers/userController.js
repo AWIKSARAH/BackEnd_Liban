@@ -1,5 +1,5 @@
 import Users from "../models/userModel.js";
-import auth from "../middleware/auth.js";
+import auth from "../middleware/jwtAuthenticationMiddleware.js";
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {

@@ -7,10 +7,10 @@ import connection from "./config/connection_db.js";
 import placeRouter from "./routes/placeRouter.js";
 import typeRouter from "./routes/typeRouter.js";
 import contactInfo from "./routes/contactInfoRouter.js";
-import event_page from "./routes/Route_event.js";
+import event_page from "./routes/eventRouter.js";
 import tagRouter from "./routes/tagRouter.js";
-import newsletter from './routes/route_news.js'
-import blogRouter from './routes/blogRoute.js'
+import newsletter from './routes/newsletterRouter.js'
+import blogRouter from './routes/blogRouter.js'
 
 const app = express();
 const port = process.env.PORT || 3000;
