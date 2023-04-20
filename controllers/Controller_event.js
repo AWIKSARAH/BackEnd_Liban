@@ -45,6 +45,39 @@ async function getAll(req, res, next) {
   }
 }
 
+async function getAllNotConf(req, res, next) {
+
+  try {
+    const pageNumber = req.query.page || 1;
+    const skipCount = (pageNumber - 1) * PAGE_SIZE;
+    // const filter = {confirmation:false };
+    const filter = { confirmation: { $eq: true } };
+    // const filter = {};
+    
+    if (req.params.type) {
+
+      filter.typeId = req.params.type;
+      console.log(req.params.type);
+    }
+    if (req.query.title) {
+      filter.title = { $regex: `.*${req.query.title}.*`, $options: "i" };
+    }
+
+    const totalEvent = await model.countDocuments(filter);
+    const totalPages = Math.ceil(totalEvent / PAGE_SIZE);
+    console.log(filter);
+    const events = await model.find(filter).skip(skipCount).limit(PAGE_SIZE);
+    console.log(events);
+    return res.status(200).json({
+      success: true,
+      data: events,
+      pageNumber: pageNumber,
+      totalPages: totalPages,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
 async function getById(req, res, next) {
   try {
     const id = req.params.id;
@@ -83,6 +116,7 @@ async function getByTitle(req, res, next) {
     res.status(500).send({ success: false, error: err.message });
   }
 }
+
 
 function edit(req, res, next) {
   const id = req.params.id;
@@ -142,5 +176,5 @@ async function deleteAll(req, res, next) {
   }
 }
 
-const event = { add, getAll, getById, getByTitle, edit, Delete, deleteAll };
+const event = { add, getAll, getById, getByTitle, edit, Delete, deleteAll ,getAllNotConf};
 export default event;
