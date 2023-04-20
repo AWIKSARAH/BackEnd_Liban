@@ -12,25 +12,27 @@ import tagRouter from "./routes/tagRouter.js";
 import newsletter from './routes/newsletterRouter.js'
 import blogRouter from './routes/blogRouter.js'
 
-const app = express();
-const port = process.env.PORT || 3000;
 
+const app = express()
+const port = process.env.PORT || 3000
+
+connection()
 
 
 connection();
 
 if (process.env.DEV_NAME === "development") {
   app.use(morgan("dev"));
+
 }
-app.get("/", function (req, res) {
-  res.send(":)))(((:");
-});
-app.use(express.json());
-app.use(cors());
+app.get('/', function (req, res) {
+  res.send(':)))(((:')
+})
+app.use(express.json())
+app.use(cors())
 
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }))
+app.use(express.static('public'))
 
 //INCLUDE THE ROUTING
 app.use('/api/user/',User_Routes);
@@ -42,10 +44,13 @@ app.use("/api/tag", tagRouter);
 app.use("/api/news",newsletter);
 app.use("/api/blog",blogRouter);
 
+
 //Handling Errors 404 and other
 // app.use(handle404Error);
 // app.use(handleErrors);
 
 app.listen(port, () => {
-  console.log(`Hello :) Your Server Running on :  http://localhost:${port}`);
-});
+  console.log(`Hello :) Your Server Running on :  http://localhost:${port}`)
+})
+
+

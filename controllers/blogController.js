@@ -1,20 +1,39 @@
 import Model from "../models/blogModel.js";
 import fs from "fs";
-// import path from "path";
+const PAGE_SIZE = 5;
+
+
+
 
 class Controller {
   // Get All Blogs
   async getAllBlogs(req, res) {
     try {
-      const blogs = await Model.find({});
+      const pageNumber = req.query.page || 1;
+      const skipCount = (pageNumber - 1) * PAGE_SIZE;
+  
+      const blogs = await Model.find().skip(skipCount).limit(PAGE_SIZE);
+      const totalBlogs = await Model.countDocuments();
+      const totalPages = Math.ceil(totalBlogs / PAGE_SIZE);
+  
       if (!blogs.length) {
         return res.status(404).send({ success: true, message: "No blogs found" });
       }
-      res.json(blogs);
+  
+      res.json({
+        success: true,
+        data: blogs,
+        pageNumber: pageNumber,
+        totalPages: totalPages
+      });
     } catch (err) {
       res.status(500).send(err);
     }
   }
+
+  
+
+  
 
   // Get Blog by ID
   async getBlogById(req, res, next) {
