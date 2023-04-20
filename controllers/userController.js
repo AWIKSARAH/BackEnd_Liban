@@ -71,25 +71,22 @@ export const getUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    // const startIndex = (page - 1) * limit;
-    // const endIndex = page * limit;
-    // const users = await Users.find({}).skip(startIndex).limit(limit);
-    // const total = await Users.countDocuments({});
+
     Users.paginate({}, { page, limit }).then((result) => {
       res.status(200).json({
         success: true,
         data: result,
         
       });
+      if (!result) {
+          return res.status(404).json({
+            success: false,
+            error: "No users found",
+          });
+        }
     }).catch((error) => {
       res.status(500).send(error);
     });
-    // if (!users) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     error: "No users found",
-    //   });
-    // }
     
   } catch (error) {
     console.error(error);
