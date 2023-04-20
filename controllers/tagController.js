@@ -15,8 +15,8 @@ function add(req, res, next) {
 
 
 async function getAll(req, res) {
-  const page = parseInt(req.query.page) || 1;
   const filter = {};
+  const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   try { 
     if (req.query.name) {

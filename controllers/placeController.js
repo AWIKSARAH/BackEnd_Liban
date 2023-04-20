@@ -36,17 +36,21 @@ class PlaceController {
   async read(req, res) {
     try {
       const filter = {}
+      // const options = {
+      //   page: parseInt(req.query.page)|| 1,
+      //   limit: parseInt(req.query.limit)|| 10
+      //   }
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
       if (req.query.title) {
         filter.title = { $regex: new RegExp('^' + req.query.title, 'i') }
       }
-      const pageNumber = parseInt(req.query.page) || 1
-      const skipCount = (pageNumber - 1) * PAGE_SIZE
+     
   
-      const places = await PlaceModel.find(filter).skip(skipCount).limit(PAGE_SIZE)
-      const totalPlaces = await PlaceModel.countDocuments(filter)
-      const totalPages = Math.ceil(totalPlaces / PAGE_SIZE)
+      const places = await PlaceModel.paginate(filter, {page,limit})
+     
   
-      if (!places.length) {
+      if (!places.docs.length) {
         return res.status(404).json({
           success: true,
           message: 'No place found',
@@ -56,8 +60,7 @@ class PlaceController {
       res.json({
         success: true,
         data: places,
-        pageNumber,
-        totalPages,
+       
       })
     } catch (error) {
       return res.status(500).json({ success: false, message: "Server Error",error: error.message  });
