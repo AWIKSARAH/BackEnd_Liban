@@ -7,12 +7,15 @@ const router = express.Router();
 router.get ('/', controller.getAllBlogs)
 
 
+
+// , imageUpload('blog')
 // POST /blog
-router.post('/', imageUpload('blog'), controller.newBlog);
+router.post('/',imageUpload('blog'),controller.newBlog);
 
 
+// , imageUpload('blog')
 // GET /blog/:Id
-router.get('/:id', controller.getBlogById);
+router.get('/:id',controller.getBlogById);
 // PUT /blog/:Id
 router.put('/:id', imageUpload('blog'), controller.updateBlog);
 

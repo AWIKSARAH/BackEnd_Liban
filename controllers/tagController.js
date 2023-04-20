@@ -16,25 +16,34 @@ function add(req, res, next) {
 
 async function getAll(req, res) {
   try {
-    const pageNumber = req.query.page || 1;
-    const skipCount = (pageNumber - 1) * PAGE_SIZE;
+    const filter = {}
+    if (req.query.name) {
+      filter.name = { $regex: new RegExp('^' + req.query.name, 'i') }
+    }
+    const pageNumber = parseInt(req.query.page) || 1
+    const skipCount = (pageNumber - 1) * PAGE_SIZE
 
-    const totalTag= await model.countDocuments();
-    const totalPages = Math.ceil(totalTag/ PAGE_SIZE);
+    const tag = await model.find(filter).skip(skipCount).limit(PAGE_SIZE)
+    const totaltag = await model.countDocuments(filter)
+    const totalPages = Math.ceil(totaltag / PAGE_SIZE)
 
-    const Tag = await model.find().skip(skipCount).limit(PAGE_SIZE);
+    if (!tag.length) {
+      return res.status(404).json({
+        success: true,
+        message: 'No tag found',
+      })
+    }
 
-    return res.status(200).json({
+    res.json({
       success: true,
-      data: Tag,
-      pageNumber: pageNumber,
-      totalPages: totalPages
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+      data: tag,
+      pageNumber,
+      totalPages,
+    })
+  } catch (err) {
+    res.status(500).send(err)
   }
 }
-
 
 
 

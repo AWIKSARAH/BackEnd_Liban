@@ -25,11 +25,11 @@ if (process.env.DEV_NAME === "development") {
 app.get("/", function (req, res) {
   res.send(":)))(((:");
 });
-app.use(express.json());
-app.use(cors());
 
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cors());
 app.use(express.static("public"));
 
 //INCLUDE THE ROUTING
