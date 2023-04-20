@@ -39,7 +39,7 @@ export const login = async (req, res) => {
  * Create a new user
  * @param {*} req
  * @param {*} res
- * @returns
+ * @returns JsonResponse
  */
 export const createUser = async (req, res) => {
   const { name, email, password, IsAdmin } = req.body;

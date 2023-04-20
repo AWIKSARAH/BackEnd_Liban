@@ -1,6 +1,6 @@
 import PlaceModel from "../models/placeModel.js";
 import { deleteImage } from "../middleware/imageHandlerMiddleware.js";
-
+const PAGE_SIZE = 10
 class PlaceController {
   //This function creates a new place document in the db
   async create(req, res) {
@@ -9,14 +9,13 @@ class PlaceController {
         name: req.body.name,
         website: req.body.website,
         about: req.body.about,
-        socialMedia: JSON.parse(req.body.socialMedia),
-        tagIds: req.body.tagIds,   // Uncomment this line and provide the appropriate field name if you want to include tagIds.
-        schedule: JSON.parse(req.body.schedule),
+        socialMedia: req.body.socialMedia,
+        tagIds: req.body.tagIds,   
+        schedule: req.body.schedule,
         location: req.body.location,
         image: req.body.image,
-        typeId: JSON.parse(req.body.typeId)     // Uncomment this line and provide the appropriate field name if you want to include typeId.
+        typeId: req.body.typeId
       });
-      console.log(req.body.tagIds);
       await place.validate();
 
       const savedPlace = await place.save();
@@ -31,28 +30,37 @@ class PlaceController {
         errors.status = 422;
         return res.status(422).json({ success: false, errors });
       }
-      return res.status(500).json({ success: false, message: "Server Error",error: error.message  });
+      return res.status(500).json({ success: false, message: "Server Error" ,error:error.message });
     }
   }
   async read(req, res) {
     try {
-      const pageNumber = req.query.page || 1;
-      const PAGE_SIZE = 10;
-      const skipCount = (pageNumber - 1) * PAGE_SIZE;
+      const filter = {}
+      if (req.query.title) {
+        filter.title = { $regex: new RegExp('^' + req.query.title, 'i') }
+      }
+      const pageNumber = parseInt(req.query.page) || 1
+      const skipCount = (pageNumber - 1) * PAGE_SIZE
   
-      const totalPlaces = await PlaceModel.countDocuments();
-      const totalPages = Math.ceil(totalPlaces / PAGE_SIZE);
+      const places = await PlaceModel.find(filter).skip(skipCount).limit(PAGE_SIZE)
+      const totalPlaces = await PlaceModel.countDocuments(filter)
+      const totalPages = Math.ceil(totalPlaces / PAGE_SIZE)
   
-      const places = await PlaceModel.find().skip(skipCount).limit(PAGE_SIZE);
+      if (!places.length) {
+        return res.status(404).json({
+          success: true,
+          message: 'No place found',
+        })
+      }
   
-      return res.status(200).json({
+      res.json({
         success: true,
-        places: places,
-        pageNumber: pageNumber,
-        totalPages: totalPages
-      });
+        data: places,
+        pageNumber,
+        totalPages,
+      })
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      return res.status(500).json({ success: false, message: "Server Error",error: error.message  });
     }
   }
   async readOne(req, res) {
@@ -65,7 +73,7 @@ class PlaceController {
       }
       res.json(place);
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      return res.status(500).json({ success: false, message: "Server Error" ,error:error.message });
     }
   }
 
@@ -96,14 +104,14 @@ class PlaceController {
         placeUpdate.image = req.body.image;
       }
       if (req.body.socialMedia[0].name||req.body.socialMedia[0].url) {
-        placeUpdate.socialMedia = JSON.parse(req.body.socialMedia);
+        placeUpdate.socialMedia = req.body.socialMedia;
       }
       if (req.body.tagIds[0]) {
-        placeUpdate.tagIds = JSON.parse(req.body.tagIds);
+        placeUpdate.tagIds = req.body.tagIds;
       }
       const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
       const timeSlots = ["open", "close"];
-      const schedule = JSON.parse(req.body.schedule);
+      const schedule = req.body.schedule;
       
       if (daysOfWeek.some(day => timeSlots.some(slot => schedule[day] && schedule[day][slot]))) {
         placeUpdate.schedule = schedule;
@@ -116,7 +124,7 @@ class PlaceController {
         placeUpdate.image = req.body.image;
       }
       if (req.body.typeId) {
-        placeUpdate.typeId = JSON.parse(req.body.typeId);
+        placeUpdate.typeId = req.body.typeId;
       }
       const updatedPlace = await PlaceModel.findOneAndUpdate(
         { _id: req.params.id },
@@ -154,39 +162,13 @@ class PlaceController {
         deleteImage(place.image);
         place.image = req.body.image;
       }
-      res.json({ success: true, message: "Place deleted" });
+      res.json({ success: true, message: "Place Deleted Successfully" });
     } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+      res.status(500).json({ success: false, message: "Server Error" ,error:error.message });
     }
   }
-  async readByTypeId(req, res) {
-    try {
-      const { typeId } = req.params;
-      const places = await PlaceModel.find({ typeId });
-      res.json({ success: true, places });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: "Server error" });
-    }
-  }
-  async searchPlaceByName(req, res) {
-    try {
-    const searchQuery = req.query.name;
-    const perPage = 10;
-    const page = parseInt(req.query.page) || 1;
-    const places = await PlaceModel.find({ name: { $regex: '^' + searchQuery } })
-    .skip((perPage * page) - perPage)
-    .limit(perPage);
-    if (!places || places.length === 0) {
-    return res.status(404).json({ success: false, message: 'No matching places found' });
-    }
-    const totalCount = await PlaceModel.countDocuments({ name: { $regex: '^' + searchQuery } });
-    const totalPages = Math.ceil(totalCount / perPage);
-    return res.status(200).json({ success: true, places, currentPage: page, totalPages });
-    } catch (error) {
-    return res.status(500).json({ success: false, message: 'Server Error', error: error.message });
-    }
-    }
-}
 
-export default PlaceController;
+}
+const placeController = new PlaceController();
+
+export default placeController;

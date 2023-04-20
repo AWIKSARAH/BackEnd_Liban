@@ -5,7 +5,7 @@ const PAGE_SIZE = 5;
 
 
 
-class Controller {
+class BlogController {
   // Get All Blogs
   async getAllBlogs(req, res) {
     try {
@@ -47,8 +47,8 @@ class Controller {
         .skip(skipCount)
         .limit(PAGE_SIZE);
   
-      const totalblog = await Model.countDocuments({ title: { $regex: title, $options: "i" } });
-      const totalPages = Math.ceil(totalblog / PAGE_SIZE);
+      const totalBlogs = await Model.countDocuments({ title: { $regex: title, $options: "i" } });
+      const totalPages = Math.ceil(totalBlogs / PAGE_SIZE);
   
       if (!events.length) {
         return res.status(404).send({ success: false, error: 'Event not found' })
@@ -148,5 +148,5 @@ class Controller {
 
 
 
-const controller = new Controller();
-export default controller;
+const blogController = new BlogController();
+export default blogController;
