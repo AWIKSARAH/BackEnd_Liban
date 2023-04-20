@@ -16,6 +16,8 @@ export function handleErrors(err, req, res, next) {
   res.status(err.status || 500).send({
     success: false,
     message: err.message,
+    anotherMessage:"gg"
   });
+  console.log(err);
 }
 
