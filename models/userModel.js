@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 import validator from "validator";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-const User_Schema = new mongoose.Schema({
+import mongoosePaginate from 'mongoose-paginate-v2';
+
+const UserSchema = new mongoose.Schema({
   name: {
     type: "string",
     required: [true, "Please enter a Name, this is required"],
@@ -33,13 +35,13 @@ const User_Schema = new mongoose.Schema({
 });
 
 
-User_Schema.pre('save', async function (next) {
+UserSchema.pre('save', async function (next) {
   const salt = await bcryptjs.genSalt(10);
   this.password = await bcryptjs.hash(this.password, salt)
   next();
 });
 
-User_Schema.pre('findOneAndUpdate', async function (next) {
+UserSchema.pre('findOneAndUpdate', async function (next) {
   if (this._update.password) {
     const salt = await bcryptjs.genSalt(10);
     this._update.password = await bcryptjs.hash(this._update.password, salt);
@@ -48,16 +50,18 @@ User_Schema.pre('findOneAndUpdate', async function (next) {
 });
 
 
-User_Schema.methods.createJWT = function(){
+UserSchema.methods.createJWT = function(){
   console.log(this._id);
   return jwt.sign({_id:this._id}, process.env.SECRET_KEY,{expiresIn:process.env.JWT_LIFETIME})
 
 }
 
-User_Schema.methods.comparePassword = async function(candidate){
+UserSchema.methods.comparePassword = async function(candidate){
   const isMatch = await bcryptjs.compare(candidate,this.password);
   return isMatch ;
 }
 
+UserSchema.plugin(mongoosePaginate);
 
-export default mongoose.model("Users", User_Schema);
+
+export default mongoose.model("Users", UserSchema);
