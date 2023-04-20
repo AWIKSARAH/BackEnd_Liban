@@ -1,4 +1,4 @@
-import model from '../models/Model_event.js'
+import model from '../models/eventModel.js'
 const PAGE_SIZE = 5
 
 function add(req, res, next) {
@@ -40,11 +40,11 @@ async function getAll(req, res) {
     const pageNumber = parseInt(req.query.page) || 1
     const skipCount = (pageNumber - 1) * PAGE_SIZE
 
-    const event = await model.find(filter).skip(skipCount).limit(PAGE_SIZE)
-    const totalevent = await model.countDocuments(filter)
-    const totalPages = Math.ceil(totalevent / PAGE_SIZE)
+    const events = await model.find(filter).skip(skipCount).limit(PAGE_SIZE)
+    const totalEvents = await model.countDocuments(filter)
+    const totalPages = Math.ceil(totalEvents / PAGE_SIZE)
 
-    if (!event.length) {
+    if (!events.length) {
       return res.status(404).json({
         success: true,
         message: 'No event found',

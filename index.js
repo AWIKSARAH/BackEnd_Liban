@@ -19,7 +19,6 @@ const port = process.env.PORT || 3000
 connection()
 
 
-connection();
 
 if (process.env.DEV_NAME === "development") {
   app.use(morgan("dev"));
