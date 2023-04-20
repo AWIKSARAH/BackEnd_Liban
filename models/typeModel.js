@@ -15,7 +15,7 @@ const TypeSchema = new mongoose.Schema({
     trim: true,
   }
 });
+TypeSchema.plugin(mongoosePaginate);
 const TypeModel = mongoose.model("Type", TypeSchema);
 
-TypeSchema.plugin(mongoosePaginate);
 export default TypeModel;

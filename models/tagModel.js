@@ -20,10 +20,11 @@ const tagSchema = new Schema(
     collection: "Tag",
   }
 );
-
 tagSchema.plugin(mongoosePaginate);
 
+
 const Event = model("Tag", tagSchema);
+
 export default Event;
 
 

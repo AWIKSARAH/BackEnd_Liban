@@ -15,33 +15,33 @@ function add(req, res, next) {
 
 
 async function getAll(req, res) {
-  try {
-    const filter = {}
+  const page = parseInt(req.query.page) || 1;
+  const filter = {};
+  const limit = parseInt(req.query.limit) || 10;
+  try { 
     if (req.query.name) {
-      filter.name = { $regex: new RegExp('^' + req.query.name, 'i') }
+      filter.name = { $regex: new RegExp("^" + req.query.name, "i") };
     }
-    const pageNumber = parseInt(req.query.page) || 1
-    const skipCount = (pageNumber - 1) * PAGE_SIZE
-
-    const tag = await model.find(filter).skip(skipCount).limit(PAGE_SIZE)
-    const totaltag = await model.countDocuments(filter)
-    const totalPages = Math.ceil(totaltag / PAGE_SIZE)
-
-    if (!tag.length) {
-      return res.status(404).json({
+   model.paginate(filter, { page, limit }).then((result) => {
+      res.status(200).json({
         success: true,
-        message: 'No tag found',
-      })
-    }
-
-    res.json({
-      success: true,
-      data: tag,
-      pageNumber,
-      totalPages,
-    })
+        data: result,
+        
+      });
+      if (!result) {
+          return res.status(404).json({
+            success: false,
+            error: "No Tags found",
+          });
+        }
+    }).catch((error) => {
+      res.status(500).send({ success: false,
+        error:error});
+    });
+    
   } catch (err) {
-    res.status(500).send(err)
+    res.status(500).send({ success: false,
+      error:err});
   }
 }
 

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import mongoosePaginate from "mongoose-paginate-v2";
 const PlaceSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -153,6 +153,7 @@ const PlaceSchema = new mongoose.Schema({
     default: false,
   }
 });
+PlaceSchema.plugin(mongoosePaginate);
 const PlaceModel = mongoose.model("Place", PlaceSchema);
 export default PlaceModel;
 
