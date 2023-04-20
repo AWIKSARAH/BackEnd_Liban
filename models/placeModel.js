@@ -148,7 +148,7 @@ const PlaceSchema = new mongoose.Schema({
     ref: "Tag",
     required: true,
   }],
-  confitmation:{
+  confirmation:{
     type: Boolean,
     default: false,
   }

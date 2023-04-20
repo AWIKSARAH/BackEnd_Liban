@@ -1,94 +1,67 @@
 import Model from "../models/blogModel.js";
 import fs from "fs";
 const PAGE_SIZE = 5;
+import { NotFoundError } from '../errors.js';
 
 
 
 
 class BlogController {
   // Get All Blogs
-  async getAllBlogs(req, res) {
+  async read(req, res, next) {
     try {
       const pageNumber = req.query.page || 1;
-      const skipCount = (pageNumber - 1) * PAGE_SIZE;
   
-      const blogs = await Model.find().skip(skipCount).limit(PAGE_SIZE);
+      const skipCount = (pageNumber - 1) * PAGE_SIZE;
+      const filter={}
+      if(req.query.title){
+        filter.title = new RegExp(req.query.title, "i");
+      }
+      
+  
+      const blogs = await Model.find(filter).skip(skipCount).limit(PAGE_SIZE);
       const totalBlogs = await Model.countDocuments();
       const totalPages = Math.ceil(totalBlogs / PAGE_SIZE);
   
       if (!blogs.length) {
-        return res.status(404).json({
-          success: true,
-          message: 'No blogs found',
-        });
+        throw new NotFoundError('No blogs found');
       }
   
-      res.json({
+      return res.json({
         success: true,
         data: blogs,
         pageNumber: pageNumber,
         totalPages: totalPages
       });
     } catch (err) {
-      res.status(500).send(err);
+      next(err);
     }
   }
-
-
-
-  async  getByTitle(req, res, next) {
-    try {
-      const title = req.query.title;
-      const pageNumber = req.query.page || 1;
-      const skipCount = (pageNumber - 1) * PAGE_SIZE;
-  
-      const events = await model
-        .find({ title: { $regex: title, $options: "i" } })
-        .skip(skipCount)
-        .limit(PAGE_SIZE);
-  
-      const totalBlogs = await Model.countDocuments({ title: { $regex: title, $options: "i" } });
-      const totalPages = Math.ceil(totalBlogs / PAGE_SIZE);
-  
-      if (!events.length) {
-        return res.status(404).send({ success: false, error: 'Event not found' })
-      }
-  
-      res.status(200).send({ success: true, events, pageNumber, totalPages });
-    } catch (err) {
-      res.status(500).send({ success: false, error: err.message })
-    }
-  }
-  
 
 
 
 
 
   // Get Blog by ID
-  async getBlogById(req, res, next) {
+  async readOne(req, res, next) {
     const { id } = req.params;
     try {
       const blog = await Model.findOne({ _id: id });
       if (!blog) {
-        return res.status(404).send({ success: true, message: "Blog not found" });
+        throw new NotFoundError('Blog with id ' + id + ' not found');
       }
-      res.status(200).send({ success: true, blog });
+      res.status(200).send({ success: true,data: blog });
     } catch (err) {
       next(err);
     }
   }
 
   // New Blog
-  async newBlog(req, res, next) {
-    const { title, description } = req.body;
-    // let image = "";
-    // if (req.file) {
-    const  image = req.body.image;
-    // }
+  async create(req, res, next) {
+    const { title, description, image } = req.body;
     try {
       const blog = await Model.create({ title, description, image });
-      res.status(200).send({ success: true, blog });
+      res.status(200).send({ success: true,data: blog });
     } catch (err) {
       next(err);
     }
@@ -99,27 +72,31 @@ class BlogController {
 
 
   // Update Blog By ID
-  async updateBlog(req, res, next) {
+  async update(req, res, next) {
     const { id } = req.params;
-    const { title, description } = req.body;
-    let image = "";
+    const update = {}
+
+    const { title, description ,image} = req.body;
+    if (title) update.title = title;
+    if (description) update.description = description;
+    if(image) update.image = image;
+
     try {
-      const blog = await Model.findOne({ _id: id });
-      if (!blog) {
-        return res.status(404).send({ success: true, message: "Blog not found" });
-      }
-      if (req.file) {
-        fs.unlinkSync(blog.image);
-        image = req.file.path;
-      } else {
-        image = blog.image;
-      }
-      const updatedBlog = await Model.findByIdAndUpdate(
+
+      
+      const blog = await Model.findByIdAndUpdate(
         { _id: id },
         { title, description, image },
-        { new: true }
+        { new: false }
       );
-      res.status(200).send({ success: true, message: "The blog has been updated successfully", blog: updatedBlog });
+      if(!blog){
+        throw new NotFoundError('Blog with id'+ id +'not found');
+      }
+      if (req.body.image) {
+        fs.unlinkSync(blog.image);
+        image = req.file.path;
+      }
+      res.status(200).send({ success: true, message: "The blog has been updated successfully", blog });
     } catch (err) {
       next(err);
     }
@@ -128,18 +105,18 @@ class BlogController {
 
 
   // Delete Blog By ID
-  async deleteBlog(req, res, next) {
+  async delete(req, res, next) {
     const { id } = req.params;
     try {
       const blog = await Model.findOne({ _id: id });
       if (!blog) {
-        return res.status(404).send({ success: true, message: "Blog not found" });
+       throw new NotFoundError('Blog with id'+ id +'not found');
       }
       if (blog.image) {
         fs.unlinkSync(blog.image);
       }
       await Model.findByIdAndDelete({ _id: id });
-      res.status(200).send({ success: true, message: "This blog has been deleted successfully" });
+      res.status(200).send({ success: true, message: "Blog has been deleted successfully" });
     } catch (err) {
       next(err);
     }
