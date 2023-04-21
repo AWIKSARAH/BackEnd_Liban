@@ -22,6 +22,7 @@ class PlaceController {
       
       return res.status(201).json({ success: true, savedPlace });
     } catch (error) {
+      console.log('hhh'+error.name);
       if (error.name === "ValidationError") {
         const errors = {};
         Object.keys(error.errors).forEach((key) => {

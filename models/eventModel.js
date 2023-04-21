@@ -98,6 +98,6 @@ eventSchema.pre(['find','findOneAndUpdate','updateOne'], function() {
 
 
 
-eventSchema.plugin(mongoosePaginate);
 const Event = model("Event", eventSchema);
+eventSchema.plugin(mongoosePaginate);
 export default Event;

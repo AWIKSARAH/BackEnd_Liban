@@ -6,34 +6,56 @@ function add(req, res, next) {
   Add.save()
     .then((response) => res.status(200).send({ success: true, response }))
     .catch((err) => {
+      if (error.name === "ValidationError") {
+        const errors = {};
+        Object.keys(error.errors).forEach((key) => {
+          errors[key] = error.errors[key].message;
+        });
+        errors.status = 422;
+        return res.status(422).json({ success: false, errors });
+      }
       res.status(400).send(err);
     });
 }
 
-// async function getAll(req, res) {
-//   try {
-//     const pageNumber = req.query.page || 1;
-//     const skipCount = (pageNumber - 1) * PAGE_SIZE;
+async function getPrivateEvent(req, res) {
+  try {
+    const filter = {confirmation: false};
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      limit: parseInt(req.query.limit) || 10,
+    };
+    if (req.query.title) {
+      filter.title = { $regex: new RegExp("^" + req.query.title, "i") };
+    }
 
-//     const totalEvent= await model.countDocuments();
-//     const totalPages = Math.ceil(totalEvent/ PAGE_SIZE);
+    const events = await model.paginate(filter, options);
 
-//     const Event = await model.find().skip(skipCount).limit(PAGE_SIZE);
+    if (!events.docs.length) {
+      if (req.query.title) {
+        return res.status(404).json({
+          success: true,
+          message: `No event found for ${req.query.title}`,
+        });
+      }
+      return res.status(404).json({
+        success: true,
+        message: "No event found",
+      });
+    }
 
-//     return res.status(200).json({
-//       success: true,
-//       data: Event,
-//       pageNumber: pageNumber,
-//       totalPages: totalPages
-//     });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// }
+    res.json({
+      success: true,
+      data: events,
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
 
 async function getAll(req, res) {
   try {
-    const filter = {};
+    const filter = {confirmation: true};
     const options = {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 10,
@@ -69,7 +91,7 @@ async function getAll(req, res) {
 async function getById(req, res, next) {
   try {
     const id = req.params.id;
-    const event = await model.findOne({ _id: id });
+    const event = await model.findOne({ _id: id, confirmation: true });
     if (!event) {
       return res.status(404).send({ success: false, error: "Event not found" });
     }
@@ -137,5 +159,32 @@ async function deleteAll(req, res, next) {
   }
 }
 
-const event = { add, getAll, getById, edit, Delete, deleteAll };
+export const updateConfirmationById = async (req, res) => {
+  const eventId = req.params.id; 
+  try {
+    const event = await model.findById(eventId);
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    event.confirmation = !event.confirmation;
+
+    const updatedevent = await event.save();
+
+    return res.status(200).json({
+      success: true,
+      data: updatedevent,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      error: error,
+    });
+  }
+};
+const event = { add, getAll, getById, edit, Delete, deleteAll, getPrivateEvent,updateConfirmationById };
 export default event;
