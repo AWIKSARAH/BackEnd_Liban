@@ -54,6 +54,10 @@ export const createUser = async (req, res) => {
       },
     });
   } catch (error) {
+    if (error.code === 11000) {
+      const errorMessage = "You are already subscribed to our newsletter";
+      return res.status(400).json({ success: false, error: errorMessage });
+    }
     res.status(400).json({
       success: false,
       error: error.message,
@@ -71,23 +75,22 @@ export const getUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-
-    Users.paginate({}, { page, limit }).then((result) => {
-      res.status(200).json({
-        success: true,
-        data: result,
-        
-      });
-      if (!result) {
+    Users.paginate({}, { page, limit })
+      .then((result) => {
+        res.status(200).json({
+          success: true,
+          data: result,
+        });
+        if (!result) {
           return res.status(404).json({
             success: false,
             error: "No users found",
           });
         }
-    }).catch((error) => {
-      res.status(500).send(error);
-    });
-    
+      })
+      .catch((error) => {
+        res.status(500).send(error);
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -96,7 +99,6 @@ export const getUsers = async (req, res) => {
     });
   }
 };
-
 
 /**
  * Function to Delete a user from the database
@@ -140,7 +142,7 @@ export const updateUser = async (req, res) => {
   const { name, email } = req.body;
   try {
     const updatedUser = await Users.findByIdAndUpdate(
-      req.params.id,
+      req.user._id,
       { name: name, email: email },
       {
         new: true,
@@ -153,6 +155,41 @@ export const updateUser = async (req, res) => {
         error: "User not found",
       });
     }
+    return res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      error: error,
+    });
+  }
+};
+
+
+
+/**
+ * function to Update user profile
+ */
+export const updateUserPrev = async (req, res) => {
+  const userId = req.params.id; 
+  try {
+    const user = await Users.findById(userId);
+console.log(user);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    user.IsAdmin = !user.IsAdmin;
+console.log(user);
+
+    const updatedUser = await user.save();
+
     return res.status(200).json({
       success: true,
       data: updatedUser,
@@ -223,7 +260,6 @@ export const getUserbyName = async (req, res) => {
       success: false,
       error: "Server error",
     });
-
   }
 };
 
@@ -239,12 +275,10 @@ export const updatePassword = async (req, res) => {
 
   try {
     if (!oldPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: "Old password and new password required",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "Old password and new password required",
+      });
     }
     const user = await Users.findById(userId).select("password");
 

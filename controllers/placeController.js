@@ -36,10 +36,7 @@ class PlaceController {
   async read(req, res) {
     try {
       const filter = {}
-      // const options = {
-      //   page: parseInt(req.query.page)|| 1,
-      //   limit: parseInt(req.query.limit)|| 10
-      //   }
+      
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       if (req.query.title) {
