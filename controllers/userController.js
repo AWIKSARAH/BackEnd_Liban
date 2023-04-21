@@ -149,6 +149,11 @@ export const updateUser = async (req, res) => {
       }
     );
 
+    if (updatedUser.nModified === 0) {
+      return res
+        .status(404)
+        .send({ success: false, message: 'You haven\'\t modified anything' })
+    }
     if (!updatedUser) {
       return res.status(404).json({
         success: false,

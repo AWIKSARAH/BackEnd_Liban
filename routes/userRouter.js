@@ -14,7 +14,7 @@ router.post('/', auth, isAdminOrSuperAdmin,createUser);
 router.delete('/:id', auth, isAdminOrSuperAdmin, deleteUser);
 
 router.patch('/profile', auth, updatePassword);
-router.patch('/:id',   updateUser);
+router.patch('/',   updateUser);
 router.patch('/conf/:id',   updateUserPrev);
 
 export default router;   

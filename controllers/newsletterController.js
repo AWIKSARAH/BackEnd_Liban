@@ -25,8 +25,8 @@ const create = async (req, res) => {
  */
 const get = async (req, res) => {
   const options = {
-    page: req.query.page || 1,
-    limit: req.query.limit || 10,
+    page: parseInt(req.query.page) || 1,
+    limit: parseInt(req.query.limit) || 10,
   };
   const filters = {};
   try {
