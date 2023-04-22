@@ -26,6 +26,10 @@ async function getPrivateEvent(req, res) {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 10,
     };
+
+    if (req.params.type){
+      filter.typeId= req.params.type
+    }
     if (req.query.title) {
       filter.title = { $regex: new RegExp("^" + req.query.title, "i") };
     }
@@ -33,6 +37,13 @@ async function getPrivateEvent(req, res) {
     const events = await model.paginate(filter, options);
 
     if (!events.docs.length) {
+
+      if (req.query.type) {
+        return res.status(404).json({
+          success: true,
+          message: `No event found for ${req.query.type}`,
+        });
+      }
       if (req.query.title) {
         return res.status(404).json({
           success: true,
@@ -61,10 +72,13 @@ async function getAll(req, res) {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 10,
     };
+    if (req.params.type){
+      filter.typeId= req.params.type
+    }
     if (req.query.title) {
       filter.title = { $regex: new RegExp("^" + req.query.title, "i") };
     }
-
+console.log(filter);
     const events = await model.paginate(filter, options);
 
     if (!events.docs.length) {
@@ -167,7 +181,7 @@ export const updateConfirmationById = async (req, res) => {
     if (!event) {
       return res.status(404).json({
         success: false,
-        error: "User not found",
+        error: "Event not found",
       });
     }
 

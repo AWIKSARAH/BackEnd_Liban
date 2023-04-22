@@ -36,12 +36,16 @@ class PlaceController {
   }
   async read(req, res) {
     try {
-      const filter = {}
+      const filter = {confirmations: true};
       
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
-      if (req.query.title) {
-        filter.title = { $regex: new RegExp('^' + req.query.title, 'i') }
+
+      if (req.params.type){
+        filter.typeId = req.params.type
+      }
+      if (req.query.name) {
+        filter.name = { $regex: new RegExp('^' + req.query.name, 'i') }
       }
      
   
@@ -49,6 +53,12 @@ class PlaceController {
      
   
       if (!places.docs.length) {
+        if (req.query.name) {
+          return res.status(404).json({
+            success: true,
+            message: `No place with name ${req.query.name} found`,
+          })        }
+       
         return res.status(404).json({
           success: true,
           message: 'No place found',
@@ -64,6 +74,49 @@ class PlaceController {
       return res.status(500).json({ success: false, message: "Server Error",error: error.message  });
     }
   }
+
+
+  async getPrivatePlace(req, res) {
+    try {
+      const filter = {confirmations: false};
+      
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      if (req.params.type){
+        filter.typeId = req.params.type
+      }
+      if (req.query.name) {
+        filter.name = { $regex: new RegExp('^' + req.query.name, 'i') }
+      }
+     console.log(filter);
+  
+      const places = await PlaceModel.paginate(filter, {page,limit})
+     
+  
+      if (!places.docs.length) {
+        if (req.query.name) {
+          return res.status(404).json({
+            success: true,
+            message: `No place with name ${req.query.name} found`,
+          })        }
+       
+        return res.status(404).json({
+          success: true,
+          message: 'No place found',
+        })
+      }
+  
+      res.json({
+        success: true,
+        data: places,
+       
+      })
+    } catch (error) {
+      return res.status(500).json({ success: false, message: "Server Error",error: error.message  });
+    }
+  }
+
   async readOne(req, res) {
     try {
       const place = await PlaceModel.findById(req.params.id);
@@ -169,7 +222,35 @@ class PlaceController {
     }
   }
 
+  async updateConfirmationById(req, res) {
+    const placeId = req.params.id; 
+    try {
+      const place = await PlaceModel.findById(placeId);
+      if (!place) {
+        return res.status(404).json({
+          success: false,
+          error: "Place not found",
+        });
+      }
+  
+      place.confirmation = !place.confirmation;
+  
+      const updatedplace = await place.save();
+  
+      return res.status(200).json({
+        success: true,
+        data: updatedplace,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        success: false,
+        error: error,
+      });
+    }
+  };
 }
+
 const placeController = new PlaceController();
 
 export default placeController;

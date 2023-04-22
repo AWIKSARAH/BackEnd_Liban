@@ -47,6 +47,7 @@ export const createUser = async (req, res) => {
   try {
     const user = await Users.create({ name, email, password, IsAdmin });
 
+
     res.status(201).json({
       success: true,
       data: {
@@ -55,7 +56,7 @@ export const createUser = async (req, res) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      const errorMessage = "You are already subscribed to our newsletter";
+      const errorMessage = "You are already Signup";
       return res.status(400).json({ success: false, error: errorMessage });
     }
     res.status(400).json({
@@ -75,22 +76,40 @@ export const getUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    Users.paginate({}, { page, limit })
-      .then((result) => {
-        res.status(200).json({
+    const filters = {}
+
+    if (req.query.name) {
+      filters.name = { $regex: new RegExp("^" + req.query.name, "i") };
+    }
+    if (req.query.email) {
+      filters.email = { $regex: new RegExp("^" + req.query.email, "i") };
+    }
+
+    const user =  await Users.paginate(filters, { page, limit })
+
+    if (!user.docs.length) {
+      if (req.query.name ) {
+        return res.status(404).json({
           success: true,
-          data: result,
+          message: `No user found for ${req.query.name}`,
         });
-        if (!result) {
-          return res.status(404).json({
-            success: false,
-            error: "No users found",
-          });
-        }
-      })
-      .catch((error) => {
-        res.status(500).send(error);
+      }
+      if (req.query.email ) {
+        return res.status(404).json({
+          success: true,
+          message: `No user found for ${req.query.email}`,
+        });
+      }
+      return res.status(404).json({
+        success: true,
+        message: "No user found",
       });
+    }
+    return res.status(200).json({
+      success: true,
+      message: user
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -215,7 +234,7 @@ console.log(user);
  * @returns
  */
 export const getUser = async (req, res) => {
-  const id = req.params.id;
+  const id = req.user._id;
   try {
     const user = await Users.find({ _id: id });
     if (!user) {
