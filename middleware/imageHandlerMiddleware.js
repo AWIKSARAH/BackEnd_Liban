@@ -22,20 +22,20 @@ export default function uploadImage(imageName) {
 
     // Use the `upload.single()` middleware for requests with an image file
     try {
-    upload.single(imageName)(req, res, function (err) {
+      upload.single(imageName)(req, res, function (err) {
         if (err) {
-         console.log(err)
+          console.log(err);
         }
         // Check if a file has been uploaded
         if (req.file) {
           const destinationPath = "./uploads"; // use a default value for destination
           req.body.image = `${destinationPath}/${req.file.filename}`;
         }
+        next();
       });
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-    next();
   };
 }
 

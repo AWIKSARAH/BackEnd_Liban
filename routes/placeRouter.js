@@ -4,10 +4,10 @@ import uploadImage from "../middleware/imageHandlerMiddleware.js";
 
 const router = express.Router();
 
+
+
 // Create a new place
 router.post("/", uploadImage("place"), placeController.create);
-
-
 
 // Read all places
 router.get("/all/:type?", placeController.read);
