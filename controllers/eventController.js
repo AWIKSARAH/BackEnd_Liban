@@ -18,6 +18,7 @@ function add(req, res, next) {
     });
 }
 
+
 async function getPrivateEvent(req, res) {
   try {
     const filter = {confirmation: false};

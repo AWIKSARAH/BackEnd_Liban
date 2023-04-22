@@ -9,7 +9,7 @@ const eventSchema = new Schema(
     },
     description: {
       type: String,
-      // required: true,
+      required: true,
     },
     start_date: {
       type: Date,
@@ -64,7 +64,7 @@ const eventSchema = new Schema(
     },
     image: {
       type: String,
-      // required: true,
+      required: true,
     },
     tagIds: [
       {
@@ -97,7 +97,7 @@ eventSchema.pre(['find','findOneAndUpdate','updateOne'], function() {
 });
 
 
+eventSchema.plugin(mongoosePaginate);
 
 const Event = model("Event", eventSchema);
-eventSchema.plugin(mongoosePaginate);
 export default Event;
