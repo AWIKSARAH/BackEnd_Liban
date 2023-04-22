@@ -14,16 +14,13 @@ export function handle404Error(req, res, next) {
 export function handleErrors(err, req, res, next) {
   let statusCode, message;
 
-  if (err.name === "ValidationError") {
+  if (err.name === "ValidationError"||err.name === "CastError") {
     // Handle Mongoose validation errors
     statusCode = 400;
     message = err.message;
   } else if (err.name === "NotFoundError") {
     // Handle 404 errors
     statusCode = 404;
-    message = err.message;
-  } else if (err.name === "CastError") {
-    statusCode = 400;
     message = err.message;
   } else {
     // Handle all other errors
