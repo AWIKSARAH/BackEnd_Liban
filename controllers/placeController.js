@@ -1,119 +1,80 @@
 import PlaceModel from "../models/placeModel.js";
 import { deleteImage } from "../middleware/imageHandlerMiddleware.js";
-const PAGE_SIZE = 10
+import { NotFoundError } from "../errors.js";
 class PlaceController {
   //This function creates a new place document in the db
-  async create(req, res) {
+  async create(req, res, next) {
     try {
-      const place = new PlaceModel({
-        name: req.body.name,
-        website: req.body.website,
-        about: req.body.about,
-        socialMedia: req.body.socialMedia,
-        tagIds: req.body.tagIds,   
-        schedule: req.body.schedule,
-        location: req.body.location,
-        image: req.body.image,
-        typeId: req.body.typeId
-      });
-      await place.validate();
+      const placeData = req.body;
+      const place = await PlaceModel.create(placeData);
 
-      const savedPlace = await place.save();
-      
-      return res.status(201).json({ success: true, savedPlace });
+      return res.status(201).json({ success: true, savedPlace: place });
     } catch (error) {
-      console.log('hhh'+error.name);
-      if (error.name === "ValidationError") {
-        const errors = {};
-        Object.keys(error.errors).forEach((key) => {
-          errors[key] = error.errors[key].message;
-        });
-        errors.status = 422;
-        return res.status(422).json({ success: false, errors });
-      }
-      return res.status(500).json({ success: false, message: "Server Error" ,error:error.message });
+      next(error);
     }
   }
+
   async read(req, res) {
     try {
-      const filter = {confirmations: true};
-      
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const filter = { confirmations: true };
 
-      if (req.params.type){
-        filter.typeId = req.params.type
+      const { name, page = 1, limit = 10 } = req.query;
+
+      if (req.params.type) {
+        filter.typeId = req.params.type;
       }
-      if (req.query.name) {
-        filter.name = { $regex: new RegExp('^' + req.query.name, 'i') }
+      if (name) {
+        filter.name = { $regex: new RegExp("^" + name, "i") };
       }
-     
-  
-      const places = await PlaceModel.paginate(filter, {page,limit})
-     
-  
+
+      const places = await PlaceModel.paginate(filter, { page, limit });
+
       if (!places.docs.length) {
         if (req.query.name) {
-          return res.status(404).json({
-            success: true,
-            message: `No place with name ${req.query.name} found`,
-          })        }
-       
-        return res.status(404).json({
-          success: true,
-          message: 'No place found',
-        })
+          throw new NotFoundError(`No place found for ${name}`);
+        }
+
+        throw new NotFoundError(`No places found`);
       }
-  
+
       res.json({
         success: true,
         data: places,
-       
-      })
+      });
     } catch (error) {
-      return res.status(500).json({ success: false, message: "Server Error",error: error.message  });
+      next(error);
     }
   }
-
 
   async getPrivatePlace(req, res) {
     try {
-      const filter = {confirmations: false};
-      
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const filter = { confirmations: false };
 
-      if (req.params.type){
-        filter.typeId = req.params.type
+      const { name, page = 1, limit = 10 } = req.query;
+
+      if (req.params.type) {
+        filter.typeId = req.params.type;
       }
-      if (req.query.name) {
-        filter.name = { $regex: new RegExp('^' + req.query.name, 'i') }
+      if (name) {
+        filter.name = { $regex: new RegExp("^" + name, "i") };
       }
-     console.log(filter);
-  
-      const places = await PlaceModel.paginate(filter, {page,limit})
-     
-  
+
+      const places = await PlaceModel.paginate(filter, { page, limit });
+
       if (!places.docs.length) {
         if (req.query.name) {
-          return res.status(404).json({
-            success: true,
-            message: `No place with name ${req.query.name} found`,
-          })        }
-       
-        return res.status(404).json({
-          success: true,
-          message: 'No place found',
-        })
+          throw new NotFoundError(`No place found for ${name}`);
+        }
+
+        throw new NotFoundError(`No places found`);
       }
-  
+
       res.json({
         success: true,
         data: places,
-       
-      })
+      });
     } catch (error) {
-      return res.status(500).json({ success: false, message: "Server Error",error: error.message  });
+      next(error);
     }
   }
 
@@ -121,84 +82,66 @@ class PlaceController {
     try {
       const place = await PlaceModel.findById(req.params.id);
       if (!place) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Place not found" });
+        throw new NotFoundError(`No Blogs found`);
+        
       }
-      res.json(place);
+      res.json({success: true, data: place});
     } catch (error) {
-      return res.status(500).json({ success: false, message: "Server Error" ,error:error.message });
+     next(error);
     }
   }
 
-  async update(req, res) {
+  async update(req, res, next) {
     try {
       const place = await PlaceModel.findById(req.params.id);
       if (!place) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Place not found" });
+        throw new NotFoundError(`Place not found`);
       }
   
       if (req.body.image && place.image) {
-        // Delete the previous image
         deleteImage(place.image);
       }
-      const placeUpdate = {}
-      if (req.body.name) {
-        placeUpdate.name = req.body.name;
-      }
-      if (req.body.website) {
-        placeUpdate.website = req.body.website;
-      }
-      if (req.body.about) {
-        placeUpdate.about = req.body.about;
-      }
-      if (req.body.image) {
-        placeUpdate.image = req.body.image;
-      }
-      if (req.body.socialMedia[0].name||req.body.socialMedia[0].url) {
-        placeUpdate.socialMedia = req.body.socialMedia;
-      }
-      if (req.body.tagIds[0]) {
-        placeUpdate.tagIds = req.body.tagIds;
-      }
-      const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+  
+      const placeUpdate = {
+        name: req.body.name,
+        website: req.body.website,
+        about: req.body.about,
+        image: req.body.image,
+        socialMedia: req.body.socialMedia?.length ? req.body.socialMedia : undefined,
+        tagIds: req.body.tagIds?.length ? req.body.tagIds : undefined,
+        location: req.body.location,
+        typeId: req.body.typeId,
+      };
+  
+      const daysOfWeek = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+      ];
       const timeSlots = ["open", "close"];
       const schedule = req.body.schedule;
-      
-      if (daysOfWeek.some(day => timeSlots.some(slot => schedule[day] && schedule[day][slot]))) {
+  
+      if (
+        daysOfWeek.some((day) =>
+          timeSlots.some((slot) => schedule[day]?.[slot])
+        )
+      ) {
         placeUpdate.schedule = schedule;
       }
-      
-      if (req.body.location) {
-        placeUpdate.location = req.body.location;
-      }
-      if (req.body.image) {
-        placeUpdate.image = req.body.image;
-      }
-      if (req.body.typeId) {
-        placeUpdate.typeId = req.body.typeId;
-      }
+  
       const updatedPlace = await PlaceModel.findOneAndUpdate(
         { _id: req.params.id },
         { $set: placeUpdate },
         { new: true, runValidators: true }
       );
-      
-
   
-      return res.status(200).json({ success: true, updatedPlace });
+      res.status(200).json({ success: true, updatedPlace });
     } catch (error) {
-      if (error.name === "ValidationError") {
-        const errors = {};
-        Object.keys(error.errors).forEach((key) => {
-          errors[key] = error.errors[key].message;
-        });
-        return res.status(422).json({ success: false, errors });
-      }
-      console.error(error);
-      return res.status(500).json({ success: false, message: "Server Error",error: error.message });
+      next(error);
     }
   }
   
@@ -207,9 +150,7 @@ class PlaceController {
     try {
       const place = await PlaceModel.findByIdAndDelete(req.params.id);
       if (!place) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Place not found" });
+        throw new NotFoundError(`Place not found`);
       }
       if (place.image) {
         // Delete the previous image
@@ -218,37 +159,31 @@ class PlaceController {
       }
       res.json({ success: true, message: "Place Deleted Successfully" });
     } catch (error) {
-      res.status(500).json({ success: false, message: "Server Error" ,error:error.message });
+      next(error);
     }
   }
 
   async updateConfirmationById(req, res) {
-    const placeId = req.params.id; 
+    const placeId = req.params.id;
     try {
       const place = await PlaceModel.findById(placeId);
       if (!place) {
-        return res.status(404).json({
-          success: false,
-          error: "Place not found",
-        });
+        throw new NotFoundError(`Place not found`);
+
       }
-  
+
       place.confirmation = !place.confirmation;
-  
-      const updatedplace = await place.save();
-  
+
+      const updatedPlace = await place.save();
+
       return res.status(200).json({
         success: true,
-        data: updatedplace,
+        data: updatedPlace,
       });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({
-        success: false,
-        error: error,
-      });
+      next(error);
     }
-  };
+  }
 }
 
 const placeController = new PlaceController();
