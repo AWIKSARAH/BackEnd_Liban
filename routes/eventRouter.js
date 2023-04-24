@@ -7,6 +7,7 @@ router.post("/", controller.add);
 
 router.get("/all/:type?", controller.getAll);
 router.get("/conf/:type?", controller.getPrivateEvent);
+router.get('/latest', controller.latestPlace)
 router.get("/:id", controller.getById);
 
 router.patch("/confirm/:id", controller.updateConfirmationById);

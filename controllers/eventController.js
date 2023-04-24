@@ -65,6 +65,31 @@ async function getPrivateEvent(req, res) {
   }
 }
 
+async function latestPlace (req, res, next)  {
+    
+  try {
+
+    const page = 1;
+    const  limit = 3 ; 
+
+    const latestPlaces = await PlaceModel.paginate(
+      {confirmation:true},
+      {
+        sort: { _id: 'desc' },
+        page: parseInt(page),
+        limit: parseInt(limit),
+      }
+    );
+    
+    res.json({
+      success: true,
+      data: latestPlaces,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function getAll(req, res) {
   try {
     const filter = {confirmation: true};
@@ -201,5 +226,5 @@ export const updateConfirmationById = async (req, res) => {
     });
   }
 };
-const event = { add, getAll, getById, edit, Delete, deleteAll, getPrivateEvent,updateConfirmationById };
+const event = { add, getAll, getById, edit, Delete, deleteAll, getPrivateEvent,updateConfirmationById ,latestPlace};
 export default event;

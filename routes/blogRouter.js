@@ -6,8 +6,7 @@ const router = express.Router();
 
 
 // GET /blog
-router.get ('/', controller.read)
-
+router.get ('/', controller.getAllBlogs);
 // , imageUpload('blog')
 // POST /blog
 router.post('/',imageUpload('blog'),controller.create);

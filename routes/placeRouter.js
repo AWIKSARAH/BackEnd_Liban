@@ -12,6 +12,7 @@ router.post("/", uploadImage("place"), placeController.create);
 // Read all places
 router.get("/all/:type?", placeController.read);
 router.get("/conf/:type?", placeController.getPrivatePlace);
+router.get('/latest', placeController.latestPlace)
 
 // Read a place by ID
 router.get("/:id", placeController.readOne);
