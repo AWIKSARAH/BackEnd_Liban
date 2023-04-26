@@ -1,37 +1,37 @@
 import Users from "../models/userModel.js";
 import auth from "../middleware/jwtAuthenticationMiddleware.js";
-export const login = async (req, res) => {
+import {
+  BadRequestError,
+  MethodNotAllowedError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../errors.js";
+
+export const login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    if (!email || !password)
-      return res
-        .status(500)
-        .json({ success: false, error: "Enter A Correct Information" });
+    if (!email || !password) {
+      throw new BadRequestError("Please provide both email and password.");
+    }
 
     const user = await Users.findOne({ email }).select("+password");
     if (!user) {
-      return res
-        .status(500)
-        .json({ success: false, error: "Inavalid Credentials: Email" });
+      throw new UnauthorizedError("Invalid email or password.");
     }
-    console.log(user);
 
     const isCorrect = await user.comparePassword(password);
     if (!isCorrect) {
-      return res
-        .status(500)
-        .json({ success: false, error: "Inavalid Credentials: Password" });
+      throw new UnauthorizedError("Invalid email or password.");
     }
 
     const token = user.createJWT();
     user.password = undefined;
-    // res.status(200).json({ success: true, user: user });
     res
       .status(200)
-      .header("Authorization", "Bearer " + token)
+      .header("Authorization", `Bearer ${token}`)
       .json({ success: true, user: user, token: token });
   } catch (error) {
-    res.status(500).json({ success: false, error: error });
+    next(error);
   }
 };
 
@@ -41,12 +41,11 @@ export const login = async (req, res) => {
  * @param {*} res
  * @returns JsonResponse
  */
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
   const { name, email, password, IsAdmin } = req.body;
 
   try {
     const user = await Users.create({ name, email, password, IsAdmin });
-
 
     res.status(201).json({
       success: true,
@@ -57,14 +56,12 @@ export const createUser = async (req, res) => {
   } catch (error) {
     if (error.code === 11000) {
       const errorMessage = "You are already Signup";
-      return res.status(400).json({ success: false, error: errorMessage });
+      return next(new BadRequestError(errorMessage));
     }
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
+    next(error);
   }
 };
+
 /**
  * Function to read all users from the database
  * @param {*} req
@@ -76,7 +73,7 @@ export const getUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    const filters = {}
+    const filters = {};
 
     if (req.query.name) {
       filters.name = { $regex: new RegExp("^" + req.query.name, "i") };
@@ -85,37 +82,23 @@ export const getUsers = async (req, res) => {
       filters.email = { $regex: new RegExp("^" + req.query.email, "i") };
     }
 
-    const user =  await Users.paginate(filters, { page, limit })
+    const user = await Users.paginate(filters, { page, limit });
 
     if (!user.docs.length) {
-      if (req.query.name ) {
-        return res.status(404).json({
-          success: true,
-          message: `No user found for ${req.query.name}`,
-        });
+      if (req.query.name) {
+        throw new NotFoundError(`No user found for ${req.query.name}`);
       }
-      if (req.query.email ) {
-        return res.status(404).json({
-          success: true,
-          message: `No user found for ${req.query.email}`,
-        });
+      if (req.query.email) {
+        throw new NotFoundError(`No user found for ${req.query.email}`);
       }
-      return res.status(404).json({
-        success: true,
-        message: "No user found",
-      });
+      throw new NotFoundError(`No user found`);
     }
     return res.status(200).json({
       success: true,
-      message: user
+      message: user,
     });
-
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -129,16 +112,11 @@ export const deleteUser = async (req, res) => {
   try {
     const total = await Users.countDocuments({});
     if (total === 1) {
-      return res
-        .status(405)
-        .json({ success: false, error: "Cann't Delete yourself " });
+      throw new MethodNotAllowedError("Can't delete yourself");
     }
     const user = await Users.findByIdAndDelete(req.params.id);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "User not found",
-      });
+      throw new NotFoundError("User not found");
     }
     console.log(total);
     res.status(200).json({
@@ -146,11 +124,7 @@ export const deleteUser = async (req, res) => {
       error: "User deleted successfully",
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -168,49 +142,35 @@ export const updateUser = async (req, res) => {
       }
     );
 
-    if (updatedUser.nModified === 0) {
-      return res
-        .status(404)
-        .send({ success: false, message: 'You haven\'\t modified anything' })
-    }
+    // if (updatedUser.modified === 0) {
+      // throw new NotFoundError("User not found");
+    // }
     if (!updatedUser) {
-      return res.status(404).json({
-        success: false,
-        error: "User not found",
-      });
+      throw new NotFoundError("User not found");
+
     }
     return res.status(200).json({
       success: true,
       data: updatedUser,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: error,
-    });
+    next(error)
   }
 };
-
-
 
 /**
  * function to Update user profile
  */
 export const updateUserPrev = async (req, res) => {
-  const userId = req.params.id; 
+  const userId = req.params.id;
   try {
     const user = await Users.findById(userId);
-console.log(user);
+    console.log(user);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "User not found",
-      });
+     throw new NotFoundError(`User ${userId} not found`);
     }
 
     user.IsAdmin = !user.IsAdmin;
-console.log(user);
 
     const updatedUser = await user.save();
 
@@ -219,11 +179,7 @@ console.log(user);
       data: updatedUser,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: error,
-    });
+    next(error)
   }
 };
 
@@ -238,21 +194,14 @@ export const getUser = async (req, res) => {
   try {
     const user = await Users.find({ _id: id });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "No users found",
-      });
+     throw new NotFoundError(`User ${id} not found`);
     }
     return res.status(200).json({
       success: true,
       data: user,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: "Server error",
-    });
+    next(error)
   }
 };
 
@@ -269,29 +218,22 @@ export const getUserbyName = async (req, res) => {
       name: { $regex: `.*${name}.*`, $options: "i" },
     });
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "No users found",
-      });
+      throw new NotFoundError(`User ${name} Not found`);
     }
     return res.status(200).json({
       success: true,
       data: user,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: "Server error",
-    });
+    next(error)
   }
 };
 
 /**
- * Thhis Function it updates the password field
+ * This Function it updates the password field
  * @param {*} req
  * @param {*} res
- * @returns Object statuts of the success and the message or data
+ * @returns Object status of the success and the message or data
  */
 export const updatePassword = async (req, res) => {
   const userId = req.user._id;
@@ -299,18 +241,13 @@ export const updatePassword = async (req, res) => {
 
   try {
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        error: "Old password and new password required",
-      });
+      throw new BadRequestError( "Old password and new password are required")
     }
     const user = await Users.findById(userId).select("password");
 
     const isMatch = await user.comparePassword(oldPassword);
     if (!isMatch) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Old password is incorrect" });
+      throw new UnauthorizedError("Old password is incorrect");
     }
 
     user.password = newPassword;
@@ -321,7 +258,5 @@ export const updatePassword = async (req, res) => {
       message: "Password updated successfully",
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, error: "Server error" });
-  }
+    next(error)}
 };

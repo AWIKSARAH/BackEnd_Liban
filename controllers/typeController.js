@@ -1,3 +1,4 @@
+import { NotFoundError } from "../errors.js";
 import TypeModel from "../models/typeModel.js";
 class TypeController {
   async create(req, res) {
@@ -6,13 +7,11 @@ class TypeController {
       const newType = await TypeModel.create({ name, description });
       res.status(201).json({ success: true, newType });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: "Server error" });
+     next(error);
     }
   }
 
   async read(req, res) {
-    try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
 
@@ -23,19 +22,13 @@ class TypeController {
             data: result,
           });
           if (!result) {
-            return res.status(404).json({
-              success: false,
-              error: "No result found",
-            });
+            throw new NotFoundError(`Types not found`);
           }
         })
         .catch((error) => {
-          res.status(500).send(error);
+          next(error);
         });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: "Server error" });
-    }
+
   }
 
   async readOne(req, res) {
@@ -43,14 +36,11 @@ class TypeController {
       const { id } = req.params;
       const type = await TypeModel.findById(id);
       if (!type) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Type not found" });
+        throw new NotFoundError(`Types not found`);
       }
       res.json({ success: true, type });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: "Server error" });
+      next(error)
     }
   }
 
@@ -64,14 +54,11 @@ class TypeController {
         { new: true }
       );
       if (!updatedType) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Type not found" });
+        throw new NotFoundError(`Types not found`);
       }
       res.json({ success: true, updatedType });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: "Server error" });
+     next(error) 
     }
   }
 
@@ -80,14 +67,11 @@ class TypeController {
       const { id } = req.params;
       const deletedType = await TypeModel.findByIdAndDelete(id);
       if (!deletedType) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Type not found" });
+        throw new NotFoundError(`Types not found`);
       }
       res.json({ success: true, deletedType });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: "Server error" });
+     next(error) 
     }
   }
 }
