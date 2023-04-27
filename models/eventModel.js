@@ -93,7 +93,7 @@ const eventSchema = new Schema(
   }
 );
 
-eventSchema.virtual("status").get(function getStatus() {
+eventSchema.virtual("status").get(function () {
   const now = new Date();
   if (this.start_date > now) {
     return "Coming soon";
