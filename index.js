@@ -2,7 +2,7 @@ import express, { urlencoded } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import User_Routes from "./routes/userRouter.js"; // import User model
-import { handle404Error, handleErrors } from "./HandlingError/HandleError.js";
+import {handleErrors } from "./HandlingError/HandleError.js";
 import connection from "./config/connection_db.js";
 import placeRouter from "./routes/placeRouter.js";
 import typeRouter from "./routes/typeRouter.js";
