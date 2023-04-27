@@ -105,6 +105,14 @@ async function getAll(req, res) {
     }
 console.log(filter);
     const events = await model.paginate(filter, options);
+    const eventsWithStatus = events.docs.map(event => {
+      return {
+        ...event.toObject(),
+        status: event.status
+      };
+    });
+    
+    console.log(eventsWithStatus[0].status); // "Coming soon"
 
     if (!events.docs.length) {
       if (req.query.title) {

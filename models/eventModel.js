@@ -82,7 +82,8 @@ const eventSchema = new Schema(
     confirmation:{
       type: Boolean,
       default: false,
-    }
+    },
+    
     
   },
   
@@ -90,6 +91,18 @@ const eventSchema = new Schema(
     collection: "Event",
   }
 );
+
+eventSchema.virtual("status").get(function () {
+  const now = new Date();
+  if (this.start_date > now) {
+    return "Coming soon";
+  } else if (this.start_date <= now && this.end_date >= now) {
+    return "Now";
+  } else {
+    return "Closed";
+  }
+});
+
 
 eventSchema.pre(['find','findOneAndUpdate','updateOne'], function() {
   this.populate({ path: 'tagIds', select: 'name description' })
