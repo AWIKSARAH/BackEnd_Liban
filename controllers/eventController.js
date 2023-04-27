@@ -72,7 +72,7 @@ async function latestPlace (req, res, next)  {
     const page = 1;
     const  limit = 3 ; 
 
-    const latestPlaces = await PlaceModel.paginate(
+    const latestPlaces = await model.paginate(
       {confirmation:true},
       {
         sort: { _id: 'desc' },
@@ -87,6 +87,16 @@ async function latestPlace (req, res, next)  {
     });
   } catch (error) {
     next(error);
+  }
+}
+function getStatus(event) {
+  const now = new Date();
+  if (event.start_date > now) {
+    return "Coming soon";
+  } else if (event.start_date <= now && event.end_date >= now) {
+    return "Now";
+  } else {
+    return "Closed";
   }
 }
 
@@ -126,13 +136,19 @@ console.log(filter);
         message: "No event found",
       });
     }
-
     res.json({
       success: true,
-      data: events,
-    });
+      data: {
+        docs: events.docs,
+        totalDocs: events.totalDocs,
+        totalPages: events.totalPages,
+        page: events.page,
+        limit: events.limit,
+        status: events.docs.length ? getStatus(events.docs[0]) : null
+      }    });
   } catch (err) {
     res.status(500).send(err);
+    console.log(err);
   }
 }
 

@@ -89,10 +89,11 @@ const eventSchema = new Schema(
   
   {
     collection: "Event",
+    toJSON: { virtuals: true }, // add this to include virtual properties when the model is converted to JSON
   }
 );
 
-eventSchema.virtual("status").get(function () {
+eventSchema.virtual("status").get(function getStatus() {
   const now = new Date();
   if (this.start_date > now) {
     return "Coming soon";
@@ -102,7 +103,6 @@ eventSchema.virtual("status").get(function () {
     return "Closed";
   }
 });
-
 
 eventSchema.pre(['find','findOneAndUpdate','updateOne'], function() {
   this.populate({ path: 'tagIds', select: 'name description' })
