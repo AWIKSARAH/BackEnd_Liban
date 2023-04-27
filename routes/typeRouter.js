@@ -1,3 +1,5 @@
+
+
 import express from "express";
 import TypeController from "../controllers/typeController.js";
 

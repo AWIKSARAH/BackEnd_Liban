@@ -6,7 +6,7 @@ import isAdminOrSuperAdmin from '../middleware/adminAuthenticaitonMiddleware.js'
 const router = express.Router();
 
 router.post('/login', login);
-router.get('/',  getUsers);
+router.get('/',auth, isAdminOrSuperAdmin,  getUsers);
 router.get('/user', auth, getUser);
 router.post('/', auth, isAdminOrSuperAdmin,createUser);
 

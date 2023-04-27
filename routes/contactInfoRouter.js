@@ -7,7 +7,7 @@ import test from '../middleware/bodyTesterMiddleware.js'
 const router = express.Router();
 
 router.get('/',get);
-router.post('/',test, uploadImage('logo'),create);
+router.post('/', uploadImage('logo'),create);
 router.patch('/:id',test,uploadImage('logo'),updateContact);
 
 export default router;

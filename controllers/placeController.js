@@ -37,6 +37,12 @@ class PlaceController {
         throw new NotFoundError(`No places found`);
       }
 
+      if (req.params.type) {
+        filter.typeId = req.params.type;
+      }
+      if (name) {
+        filter.name = { $regex: new RegExp("^" + name, "i") };
+      }
       res.json({
         success: true,
         data: places,
@@ -45,6 +51,32 @@ class PlaceController {
       next(error);
     }
   }
+
+  async latestPlace (req, res, next)  {
+    
+    try {
+
+      const page = 1;
+      const  limit = 3 ; 
+  
+      const latestPlaces = await PlaceModel.paginate(
+        {confirmation:true},
+        {
+          sort: { _id: 'desc' },
+          page: parseInt(page),
+          limit: parseInt(limit),
+        }
+      );
+      
+      res.json({
+        success: true,
+        data: latestPlaces,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  
 
   async getPrivatePlace(req, res) {
     try {
