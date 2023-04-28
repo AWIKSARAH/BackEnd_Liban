@@ -29,8 +29,8 @@ class BlogController {
         success: true,
         data: blogs,
       });
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -43,8 +43,8 @@ class BlogController {
         throw new NotFoundError("Blog with id " + id + " not found");
       }
       res.status(200).send({ success: true, data: blog });
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -55,8 +55,8 @@ class BlogController {
     try {
       const blog = await Model.create({ title, description, image });
       res.status(200).send({ success: true, data: blog });
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -91,8 +91,8 @@ class BlogController {
           message: "The blog has been updated successfully",
           blog,
         });
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -111,8 +111,8 @@ class BlogController {
       res
         .status(200)
         .send({ success: true, message: "Blog has been deleted successfully" });
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
   }
 }

@@ -1,8 +1,7 @@
-
 import contactModel from "../models/contactInfoModel.js";
-import {deleteImage} from '../middleware/imageHandlerMiddleware.js'
+import { deleteImage } from "../middleware/imageHandlerMiddleware.js";
+import { NotFoundError } from "../errors.js";
 export const create = (req, res, next) => {
-
   const { socialMedia, aboutUs } = req.body;
   const logo = req.body.image;
   const social = contactModel.create({
@@ -11,14 +10,14 @@ export const create = (req, res, next) => {
     aboutUs: aboutUs,
   });
   social
-    .then((ress) => {
-      if (!ress) {
-      res.status(500).json({ success: false, error: err });
+    .then((resp) => {
+      if (!resp) {
+        throw new NotFoundError("No Response from DB");
       }
-      return res.status(200).json({ success: true, data: ress });
+      return res.status(200).json({ success: true, data: resp });
     })
-    .catch((err) => {
-      res.status(500).json({ success: false, error: err });
+    .catch((error) => {
+      next(error);
     });
 };
 
@@ -27,32 +26,26 @@ export const get = (req, res, next) => {
     .find({})
     .then((contact) => {
       if (!contact.length) {
-        return res
-          .status(404)
-          .json({
-            success: true,
-            data: "No Info Found !Try to add new Contact",
-          });
+        throw new NotFoundError("No contact found");
       }
 
       return res.status(200).json({ success: true, data: contact });
     })
-    .catch((err) => {
-      return next(err);
+    .catch((error) => {
+      next(error);
     });
 };
 
-
-/** 
- * Functioon to update a contact with Information 
+/**
+ * Functioon to update a contact with Information
  */
 export const updateContact = async (req, res) => {
   const _id = req.params.id;
   try {
-    const oldContact = await contactModel.findOne({_id:_id});
+    const oldContact = await contactModel.findOne({ _id: _id });
 
     if (!oldContact) {
-      return res.status(404).json({ success: false, error: "Contact not found" });
+      throw new NotFoundError("Contact not found")
     }
 
     const { socialMedia, aboutUs } = req.body;
@@ -60,9 +53,11 @@ export const updateContact = async (req, res) => {
 
     console.log(oldContact.logo);
     if (logo) {
-      const imagePath = oldContact.logo
+      const imagePath = oldContact.logo;
       deleteImage(`${imagePath}`);
-    } else{console.log('nonono');}
+    } else {
+      console.log("nonono");
+    }
 
     const updatedContact = await contactModel.findByIdAndUpdate(
       oldContact._id,
@@ -73,6 +68,6 @@ export const updateContact = async (req, res) => {
     return res.status(200).json({ success: true, data: updatedContact });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, error });
+    next(error)
   }
-}
+};
