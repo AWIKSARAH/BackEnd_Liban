@@ -111,8 +111,8 @@ export const getUsers = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const total = await Users.countDocuments({});
-    if (total === 1) {
-      throw new MethodNotAllowedError("Can't delete the last user");
+    if (total === 1 || req.params.id === req.user._id) {
+      throw new MethodNotAllowedError("Can't delete the last user or yourself");
     }
     const user = await Users.findByIdAndDelete(req.params.id);
     if (!user) {
