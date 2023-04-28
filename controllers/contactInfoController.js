@@ -41,21 +41,20 @@ export const get = (req, res, next) => {
  */
 export const updateContact = async (req, res) => {
   const _id = req.params.id;
-  const newImage=req.body.image
+  const newImage = req.body.image;
   try {
     const oldContact = await contactModel.findOne({ _id: _id });
-    
+
     if (!oldContact) {
-      throw new NotFoundError("Contact not found")
+      throw new NotFoundError("Contact not found");
     }
 
     const { socialMedia, aboutUs } = req.body;
-    let logo = newImage
+    let logo = newImage;
 
     if (newImage) {
-    deleteImage(oldContact.logo)
-  }
-
+      deleteImage(oldContact.logo);
+    }
 
     const updatedContact = await contactModel.findByIdAndUpdate(
       oldContact._id,
@@ -66,6 +65,6 @@ export const updateContact = async (req, res) => {
     return res.status(200).json({ success: true, data: updatedContact });
   } catch (error) {
     console.error(error);
-    next(error)
+    next(error);
   }
 };

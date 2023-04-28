@@ -1,12 +1,11 @@
 import { BadRequestError, NotFoundError } from "../errors.js";
 import model from "../models/eventModel.js";
-const PAGE_SIZE = 5;
 
 function add(req, res, next) {
   let Add = new model(req.body);
   Add.save()
     .then((response) => res.status(200).send({ success: true, response }))
-    .catch((err) => {
+    .catch((error) => {
       if (error.name === "ValidationError") {
         const errors = {};
         Object.keys(error.errors).forEach((key) => {
@@ -46,18 +45,15 @@ async function getPrivateEvent(req, res) {
       if (title) {
        throw new NotFoundError(`No event found for ${title}`)
       }
-      return res.status(404).json({
-        success: true,
-        message: "No event found",
-      });
+      throw new NotFoundError(`Events not found`)
     }
 
     res.json({
       success: true,
       data: events,
     });
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (error) {
+    next(error)
   }
 }
 
@@ -96,7 +92,7 @@ function getStatus(event) {
   }
 }
 
-async function getAll(req, res) {
+async function getAll(req, res,next) {
   try {
     const filter = {confirmation: true};
     const options = {
@@ -142,9 +138,8 @@ console.log(filter);
         limit: events.limit,
         status: events.docs.length ? getStatus(events.docs[0]) : null
       }    });
-  } catch (err) {
-    res.status(500).send(err);
-    console.log(err);
+  } catch (error) {
+   next(error)
   }
 }
 
@@ -156,8 +151,8 @@ async function getById(req, res, next) {
       return res.status(404).send({ success: false, error: "Event not found" });
     }
     res.status(200).send({ success: true, event });
-  } catch (err) {
-    res.status(500).send({ success: false, error: err.message });
+  } catch (error) {
+    next(error)
   }
 }
 
@@ -180,8 +175,8 @@ function edit(req, res, next) {
         response,
       });
     })
-    .catch((err) => {
-      return next(err);
+    .catch((error) => {
+      next(error);
     });
 }
 
@@ -191,9 +186,7 @@ function Delete(req, res, next) {
     .findByIdAndRemove(id)
     .then((response) => {
       if (!response) {
-        return res
-          .status(404)
-          .send({ success: false, message: "No matching document found." });
+     throw new NotFoundError("Event not found")
       }
       res.status(200).send({
         success: true,
@@ -201,8 +194,8 @@ function Delete(req, res, next) {
         response,
       });
     })
-    .catch((err) => {
-      return next(err);
+    .catch((error) => {
+      next(error);
     });
 }
 
@@ -214,8 +207,8 @@ async function deleteAll(req, res, next) {
       message: "All documents deleted successfully.",
       response,
     });
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return next(error);
   }
 }
 
@@ -232,11 +225,11 @@ export const updateConfirmationById = async (req, res) => {
 
     event.confirmation = !event.confirmation;
 
-    const updatedevent = await event.save();
+    const updatedEvent = await event.save();
 
     return res.status(200).json({
       success: true,
-      data: updatedevent,
+      data: updatedEvent,
     });
   } catch (error) {
     console.error(error);

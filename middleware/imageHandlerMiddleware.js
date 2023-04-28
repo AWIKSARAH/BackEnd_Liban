@@ -28,8 +28,7 @@ export default function uploadImage(imageName) {
         }
         // Check if a file has been uploaded
         if (req.file) {
-          const destinationPath = "./uploads"; // use a default value for destination
-          req.body.image = "/uploads"+"/" +req.file.filename;
+          req.body.image = "/uploads/" +req.file.filename;
         }
         next();
       });
