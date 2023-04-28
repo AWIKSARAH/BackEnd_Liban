@@ -41,23 +41,19 @@ export const get = (req, res, next) => {
  */
 export const updateContact = async (req, res) => {
   const _id = req.params.id;
+  const newImage=req.body.image
   try {
     const oldContact = await contactModel.findOne({ _id: _id });
-
+    
     if (!oldContact) {
       throw new NotFoundError("Contact not found")
     }
 
     const { socialMedia, aboutUs } = req.body;
-    let logo = oldContact.logo
+    let logo = newImage
 
-    if (!req.file) {
-      console.log('nonono');
-      
-    } else{
-      logo= req.file.path;
-    const imagePath = oldContact.logo
-      deleteImage(`${imagePath}`);
+    if (newImage) {
+    deleteImage(oldContact.logo)
   }
 
 

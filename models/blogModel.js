@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 const {Schema, model} = mongoose;
-const Blogschema = new Schema({
+const BlogSchema = new Schema({
     tag_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Tag",
@@ -25,11 +25,11 @@ const Blogschema = new Schema({
     }
 )
     ;
-Blogschema.pre(["find", "findOne"], function () {
+BlogSchema.pre(["find", "findOne"], function () {
     this.populate(["tag_id"]);
 });
 
-Blogschema.plugin(mongoosePaginate);
+BlogSchema.plugin(mongoosePaginate);
 
-const blogschema = model("Blog", Blogschema);
-export default blogschema;
+const blogModel = model("Blog", BlogSchema);
+export default blogModel;
