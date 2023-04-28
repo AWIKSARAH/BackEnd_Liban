@@ -49,15 +49,17 @@ export const updateContact = async (req, res) => {
     }
 
     const { socialMedia, aboutUs } = req.body;
-    const logo = req.file.path || oldContact.logo;
+    let logo = oldContact.logo
 
-    console.log(oldContact.logo);
-    if (logo) {
-      const imagePath = oldContact.logo;
+    if (!req.file) {
+      console.log('nonono');
+      
+    } else{
+      logo= req.file.path;
+    const imagePath = oldContact.logo
       deleteImage(`${imagePath}`);
-    } else {
-      console.log("nonono");
-    }
+  }
+
 
     const updatedContact = await contactModel.findByIdAndUpdate(
       oldContact._id,
