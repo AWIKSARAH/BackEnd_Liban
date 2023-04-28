@@ -1,3 +1,4 @@
+import { BadRequestError, NotFoundError } from "../errors.js";
 import model from "../models/eventModel.js";
 const PAGE_SIZE = 5;
 
@@ -9,12 +10,12 @@ function add(req, res, next) {
       if (error.name === "ValidationError") {
         const errors = {};
         Object.keys(error.errors).forEach((key) => {
-          errors[key] = error.errors[key].message;
+          errors.message[key] = error.errors[key].message;
         });
         errors.status = 422;
-        return res.status(422).json({ success: false, errors });
+        throw new BadRequestError(errors);
       }
-      res.status(400).send(err);
+      next(error)
     });
 }
 
@@ -26,29 +27,24 @@ async function getPrivateEvent(req, res) {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 10,
     };
-
-    if (req.params.type){
-      filter.typeId= req.params.type
+    const title = req.query.title
+    const type = req.params.type
+    if (type){
+      filter.typeId= type
     }
-    if (req.query.title) {
-      filter.title = { $regex: new RegExp("^" + req.query.title, "i") };
+    if (title) {
+      filter.title = { $regex: new RegExp("^" + title, "i") };
     }
 
     const events = await model.paginate(filter, options);
 
     if (!events.docs.length) {
 
-      if (req.query.type) {
-        return res.status(404).json({
-          success: true,
-          message: `No event found for ${req.query.type}`,
-        });
+      if (type) {
+       throw new NotFoundError("Event not found for type " + type)
       }
-      if (req.query.title) {
-        return res.status(404).json({
-          success: true,
-          message: `No event found for ${req.query.title}`,
-        });
+      if (title) {
+       throw new NotFoundError(`No event found for ${title}`)
       }
       return res.status(404).json({
         success: true,

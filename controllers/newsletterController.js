@@ -1,13 +1,11 @@
+import { BadRequestError, NotFoundError } from "../errors.js";
 import model from "../models/newsletterModel.js";
 
 const create = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({
-        success: false,
-        error: "Email is required",
-      });
+      throw new BadRequestError("Email is required");
     }
     const data = await model.create({ email });
     res.status(200).json({ success: true, data });
@@ -16,7 +14,7 @@ const create = async (req, res) => {
       const errorMessage = "You are already subscribed to our newsletter";
       return res.status(400).json({ success: false, error: errorMessage });
     }
-    res.status(500).json({ success: false, error: error });
+   next(error)
   }
 };
 
@@ -36,13 +34,10 @@ const get = async (req, res) => {
     const data = await model.paginate(filters, options);
  
     if (!data.docs.length) {
-      return res.status(404).json({
-        success: true,
-        message: 'No NewsLetter found',
-      })
+      throw new NotFoundError("Newsletter not found");
     }    res.status(200).json({ success: true, data: data });
   } catch (error) {
-    res.status(500).json({ success: false, error: error });
+    next(error)
   }
 };
 const news = { create, get };
