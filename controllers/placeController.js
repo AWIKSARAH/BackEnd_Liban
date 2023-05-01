@@ -6,6 +6,7 @@ class PlaceController {
   async create(req, res, next) {
     try {
       const placeData = req.body;
+      placeData.confirmation=false
       const place = await PlaceModel.create(placeData);
 
       return res.status(201).json({ success: true, savedPlace: place });
@@ -15,15 +16,15 @@ class PlaceController {
   }
 
   async read(req, res, next) {
-      const { title, page = 1, type } = req.query;
+      const { title, page = 1, placeType } = req.query;
       const query = {};
     
       if (title) {
         query.title = new RegExp(title, "i"); // case-insensitive search
       }
     
-      if (type) {
-        query.placeType = type;
+      if (placeType) {
+        query.placeType = placeType;
       }
       query.confirmation=false
     
@@ -68,15 +69,15 @@ class PlaceController {
   
 
   async getPrivatePlace(req, res,next) {
-    const { title, page = 1, type } = req.query;
+    const { title, page = 1, placeType } = req.query;
     const query = {};
   
     if (title) {
       query.title = new RegExp(title, "i"); // case-insensitive search
     }
   
-    if (type) {
-      query.placeType = type;
+    if (placeType) {
+      query.placeType = placeType;
     }
     query.confirmation=false
   
@@ -127,7 +128,7 @@ class PlaceController {
         socialMedia: req.body.socialMedia?.length ? req.body.socialMedia : undefined,
         tagIds: req.body.tagIds?.length ? req.body.tagIds : undefined,
         location: req.body.location,
-        typeId: req.body.typeId,
+        placeType: req.body.placeType,
       };
   
       const daysOfWeek = [

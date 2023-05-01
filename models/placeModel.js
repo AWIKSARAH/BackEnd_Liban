@@ -1,20 +1,26 @@
 import mongoose from "mongoose";
+import validator from "validator";
 import mongoosePaginate from "mongoose-paginate-v2";
+
 const PlaceSchema = new mongoose.Schema({
-  name: {
+  title: {
     type: String,
     required: true,
     trim: true,
     minlength: [2, "Name must be at least 2 characters long"],
     maxlength: [100, "Name must not exceed 100 characters"],
   },
-  website: {
+  email: {
     type: String,
     required: true,
     minlength: [2, "Website must be at least 2 characters long"],
     maxlength: [500, "Website must not exceed 500 characters"],
+    validate: {
+      validator: validator.isEmail,
+      message: "please enter a valid email address",
+    },
   },
-  about: {
+  description: {
     type: String,
     required: true,
     minlength: [10, "About must be at least 10 characters long"],
@@ -56,73 +62,66 @@ const PlaceSchema = new mongoose.Schema({
   schedule: {
     type: {
       monday: {
-        open: {
+        status: {
           type: String,
           required: true,
         },
-        close: {
+        fromTo: {
           type: String,
-          required: true,
         },
       },
       tuesday: {
-        open: {
+        status: {
           type: String,
           required: true,
         },
-        close: {
+        fromTo: {
           type: String,
-          required: true,
         },
       },
       wednesday: {
-        open: {
+        status: {
           type: String,
           required: true,
         },
-        close: {
+        fromTo: {
           type: String,
-          required: true,
         },
       },
       thursday: {
-        open: {
+        status: {
           type: String,
           required: true,
         },
-        close: {
+        fromTo: {
           type: String,
-          required: true,
         },
       },
       friday: {
-        open: {
+        status: {
           type: String,
           required: true,
         },
-        close: {
+        fromTo: {
           type: String,
-          required: true,
         },
       },
       saturday: {
-        open: {
+        status: {
           type: String,
           required: true,
         },
-        close: {
+        fromTo: {
           type: String,
-          required: true,
         },
       },
       sunday: {
-        open: {
+        status: {
           type: String,
           required: true,
         },
-        close: {
+        fromTo: {
           type: String,
-          required: true,
         },
       },
     },
@@ -138,27 +137,30 @@ const PlaceSchema = new mongoose.Schema({
     type: String,
     // required: true,
   },
-  typeId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Type",
+  placeType: {
+    type: String,
+    enum: ["restaurant"],
     required: true,
   },
-  tagIds:[ {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Tag",
-    required: true,
-  }],
-  confirmation:{
+  tagIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tag",
+      required: true,
+    },
+  ],
+  confirmation: {
     type: Boolean,
     default: false,
-  }
+  },
 });
 PlaceSchema.plugin(mongoosePaginate);
 const PlaceModel = mongoose.model("Place", PlaceSchema);
 export default PlaceModel;
 
-
-PlaceSchema.pre(['find','findOneAndUpdate','updateOne'], function() {
-  this.populate({ path: 'tagIds', select: 'name description' })
-      .populate('typeId', 'name description');
+PlaceSchema.pre(["find", "findOneAndUpdate", "updateOne"], function () {
+  this.populate({ path: "tagIds", select: "name description" }).populate(
+    "typeId",
+    "name description"
+  );
 });

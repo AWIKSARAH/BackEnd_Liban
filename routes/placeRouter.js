@@ -7,7 +7,7 @@ const router = express.Router();
 
 
 // Create a new place
-router.post("/", uploadImage("place"), placeController.create);
+router.post("/",  placeController.create);
 
 // Read all places
 router.get("/all/:type?", placeController.read);
@@ -18,7 +18,7 @@ router.get('/latest', placeController.latestPlace)
 router.get("/:id", placeController.readOne);
 
 // Update a place by ID
-router.put("/:id", uploadImage("place"), placeController.update);
+router.put("/:id", placeController.update);
 router.patch("/confirm/:id", placeController.updateConfirmationById);
 
 // Delete a place by ID
