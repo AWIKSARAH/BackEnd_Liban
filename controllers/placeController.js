@@ -14,43 +14,32 @@ class PlaceController {
     }
   }
 
-  async read(req, res) {
-    try {
-      const filter = { confirmations: true };
-
-      const { name, page = 1, limit = 10 } = req.query;
-
-      if (req.params.type) {
-        filter.typeId = req.params.type;
+  async read(req, res, next) {
+      const { title, page = 1, type } = req.query;
+      const query = {};
+    
+      if (title) {
+        query.title = new RegExp(title, "i"); // case-insensitive search
       }
-      if (name) {
-        filter.name = { $regex: new RegExp("^" + name, "i") };
+    
+      if (type) {
+        query.placeType = type;
       }
-
-      const places = await PlaceModel.paginate(filter, { page, limit });
-
-      if (!places.docs.length) {
-        if (req.query.name) {
-          throw new NotFoundError(`No place found for ${name}`);
-        }
-
-        throw new NotFoundError(`No places found`);
+      query.confirmation=false
+    
+      const options = {
+        page: parseInt(page),
+        limit: 10, // show 10 results per page
+      };
+    
+      try {
+        const places = await PlaceModel.paginate(query, options);
+        res.json(places);
+      } catch (error) {
+        next(error)
       }
+    };
 
-      if (req.params.type) {
-        filter.typeId = req.params.type;
-      }
-      if (name) {
-        filter.name = { $regex: new RegExp("^" + name, "i") };
-      }
-      res.json({
-        success: true,
-        data: places,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
 
   async latestPlace (req, res, next)  {
     
@@ -78,39 +67,35 @@ class PlaceController {
   }
   
 
-  async getPrivatePlace(req, res) {
-    try {
-      const filter = { confirmations: false };
-
-      const { name, page = 1, limit = 10 } = req.query;
-
-      if (req.params.type) {
-        filter.typeId = req.params.type;
-      }
-      if (name) {
-        filter.name = { $regex: new RegExp("^" + name, "i") };
-      }
-
-      const places = await PlaceModel.paginate(filter, { page, limit });
-
-      if (!places.docs.length) {
-        if (req.query.name) {
-          throw new NotFoundError(`No place found for ${name}`);
-        }
-
-        throw new NotFoundError(`No places found`);
-      }
-
-      res.json({
-        success: true,
-        data: places,
-      });
-    } catch (error) {
-      next(error);
+  async getPrivatePlace(req, res,next) {
+    const { title, page = 1, type } = req.query;
+    const query = {};
+  
+    if (title) {
+      query.title = new RegExp(title, "i"); // case-insensitive search
     }
-  }
+  
+    if (type) {
+      query.placeType = type;
+    }
+    query.confirmation=false
+  
+    const options = {
+      page: parseInt(page),
+      limit: 10, // show 10 results per page
+      select: "title email description location image placeType",
+    };
+  
+    try {
+      const places = await PlaceModel.paginate(query, options);
+      res.json(places);
+    } catch (error) {
+      next(error)
+    }
+  };
 
-  async readOne(req, res) {
+
+  async readOne(req, res, next) {
     try {
       const place = await PlaceModel.findById(req.params.id);
       if (!place) {
@@ -178,7 +163,7 @@ class PlaceController {
   }
   
 
-  async delete(req, res) {
+  async delete(req, res, next) {
     try {
       const place = await PlaceModel.findByIdAndDelete(req.params.id);
       if (!place) {
@@ -195,7 +180,7 @@ class PlaceController {
     }
   }
 
-  async updateConfirmationById(req, res) {
+  async updateConfirmationById(req, res, next) {
     const placeId = req.params.id;
     try {
       const place = await PlaceModel.findById(placeId);
