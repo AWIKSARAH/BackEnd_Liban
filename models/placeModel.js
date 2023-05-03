@@ -139,7 +139,7 @@ const PlaceSchema = new mongoose.Schema({
   },
   placeType: {
     type: String,
-    enum: ["restaurant"],
+    enum: ["restaurant","services","ngo","clubs"],
     required: true,
   },
   tagIds: [

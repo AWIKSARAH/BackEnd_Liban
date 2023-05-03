@@ -16,15 +16,15 @@ class PlaceController {
   }
 
   async read(req, res, next) {
-      const { title, page = 1, placeType } = req.query;
+      const { title, page = 1, place_type } = req.query;
       const query = {};
     
       if (title) {
         query.title = new RegExp(title, "i"); // case-insensitive search
       }
     
-      if (placeType) {
-        query.placeType = placeType;
+      if (place_type) {
+        query.placeType = place_type;
       }
       query.confirmation=true
     
@@ -37,8 +37,8 @@ class PlaceController {
         const places = await PlaceModel.paginate(query, options);
         if (!places.docs.length) {
 
-          if (placeType) {
-           throw new NotFoundError("Place not found for type " + type)
+          if (place_type) {
+           throw new NotFoundError("Place not found for type " + place_type)
           }
           if (title) {
            throw new NotFoundError(`No Place found for ${title}`)
