@@ -18,7 +18,7 @@ class TypeController {
       TypeModel.paginate({}, { page, limit })
         .then((result) => {
           res.status(200).json({
-            success: true,
+            success:  true,
             data: result,
           });
           if (!result) {
