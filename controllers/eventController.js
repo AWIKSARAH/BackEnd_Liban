@@ -38,7 +38,6 @@ async function getPrivateEvent(req, res) {
     const events = await model.paginate(filter, options);
 
     if (!events.docs.length) {
-
       if (type) {
        throw new NotFoundError("Event not found for type " + type)
       }

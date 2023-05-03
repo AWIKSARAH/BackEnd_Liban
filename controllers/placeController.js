@@ -26,7 +26,7 @@ class PlaceController {
       if (placeType) {
         query.placeType = placeType;
       }
-      query.confirmation=false
+      query.confirmation=true
     
       const options = {
         page: parseInt(page),
@@ -35,7 +35,17 @@ class PlaceController {
     
       try {
         const places = await PlaceModel.paginate(query, options);
-        res.json(places);
+        if (!places.docs.length) {
+
+          if (placeType) {
+           throw new NotFoundError("Place not found for type " + type)
+          }
+          if (title) {
+           throw new NotFoundError(`No Place found for ${title}`)
+          }
+          throw new NotFoundError('Places not found')
+        } 
+                res.json(places);
       } catch (error) {
         next(error)
       }

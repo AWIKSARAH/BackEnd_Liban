@@ -10,7 +10,7 @@ const router = express.Router();
 router.post("/",  placeController.create);
 
 // Read all places
-router.get("/all/:type?", placeController.read);
+router.get("/all", placeController.read);
 router.get("/conf/:type?", placeController.getPrivatePlace);
 router.get('/latest', placeController.latestPlace)
 
