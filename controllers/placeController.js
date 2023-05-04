@@ -57,7 +57,7 @@ class PlaceController {
     try {
 
       const page = 1;
-      const  limit = 3 ; 
+      const  limit = 12 ; 
   
       const latestPlaces = await PlaceModel.paginate(
         {confirmation:true},

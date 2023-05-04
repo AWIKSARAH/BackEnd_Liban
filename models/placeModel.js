@@ -52,13 +52,7 @@ const PlaceSchema = new mongoose.Schema({
       message: "At least one social media account is required",
     },
   },
-  tagIds: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tag",
-      required: true,
-    },
-  ],
+ 
   schedule: {
     type: {
       monday: {
@@ -142,10 +136,9 @@ const PlaceSchema = new mongoose.Schema({
     enum: ["restaurant","services","ngo","clubs"],
     required: true,
   },
-  tagIds: [
+  tags: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tag",
+      type: String,
       required: true,
     },
   ],
