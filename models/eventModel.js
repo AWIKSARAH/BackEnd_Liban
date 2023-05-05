@@ -7,7 +7,12 @@ const eventSchema = new Schema(
       type: String,
       required: true,
     },
+
     description: {
+      type: String,
+      required: true,
+    },
+    tel: {
       type: String,
       required: true,
     },
