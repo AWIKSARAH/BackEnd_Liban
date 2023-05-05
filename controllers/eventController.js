@@ -131,61 +131,51 @@ async function getAll(req, res, next) {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 10,
     };
-    const title = req.query.title;
-    const category = req.query.category;
+    const query = req.query.q;
+
+    if (query) {
+      const regex = new RegExp(query, "i");
+      filter["$or"] = [
+        { category: { $regex: regex } },
+        { title: { $regex: regex } },
+        { tags: { $regex: regex } },
+      ];
+    }
+
     const type = req.params.type;
     if (type) {
       filter.typeId = type;
     }
-    if (title) {
-      filter.title = { $regex: new RegExp("^" + title, "i") };
+
+    // Add filter for date range
+    const range = req.query.range;
+    let startDate, endDate;
+    if (range === "thisWeek") {
+      startDate = moment().startOf("week").toDate();
+      endDate = moment().endOf("week").toDate();
+    } else if (range === "thisMonth") {
+      startDate = moment().startOf("month").toDate();
+      endDate = moment().endOf("month").toDate();
+    } else if (range === "custom" && req.query.startDate && req.query.endDate) {
+      startDate = moment(req.query.startDate).startOf("day").toDate();
+      endDate = moment(req.query.endDate).endOf("day").toDate();
     }
-    if (category) {
-      filter.category = { $regex: new RegExp("^" + category, "i") };
+    if (startDate && endDate) {
+      filter.start_date = { $gte: startDate, $lte: endDate };
     }
+
     const events = await model.paginate(filter, options);
 
     if (!events.docs.length) {
       if (type) {
         throw new NotFoundError("Event not found for type " + type);
       }
-      if (title) {
-        throw new NotFoundError(`No event found for ${title}`);
-      }
-      if (category) {
-        throw new NotFoundError(`No event found for ${category}`);
-      }
-      throw new NotFoundError(`Events not found`);
-    }
-
-    const now = Date.now();
-    const nextWeek = [];
-    const tomorrow = [];
-    const nextMonth = [];
-    const nextYear = [];
-
-    for (const event of events.docs) {
-      const timeLeft = event.start_date.getTime() - now;
-      const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-
-      if (daysLeft <= 7) {
-        nextWeek.push({ ...event._doc, timeLeft: daysLeft });
-      } else if (daysLeft === 1) {
-        tomorrow.push({ ...event._doc, timeLeft: daysLeft });
-      } else if (daysLeft <= 31) {
-        nextMonth.push({ ...event._doc, timeLeft: daysLeft });
-      } else if (daysLeft <= 365) {
-        nextYear.push({ ...event._doc, timeLeft: daysLeft });
-      }
+      throw new NotFoundError(`No event found for ${query}`);
     }
 
     res.json({
       success: true,
       data: events,
-      nextWeek,
-      tomorrow,
-      nextMonth,
-      nextYear,
     });
   } catch (error) {
     next(error);
