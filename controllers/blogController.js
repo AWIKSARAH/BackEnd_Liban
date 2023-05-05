@@ -65,7 +65,7 @@ class BlogController {
     const { id } = req.params;
     const update = {};
 
-    const { title, description, image } = req.body;
+    const { title, description, image ,tags} = req.body;
     if (title) update.title = title;
     if (description) update.description = description;
     if (image) update.image = image;
