@@ -146,7 +146,7 @@ class PlaceController {
     try {
       const place = await PlaceModel.findById(req.params.id);
       if (!place) {
-        throw new NotFoundError(`No Blogs found`);
+        throw new NotFoundError(`No place found`);
         
       }
       res.json({success: true, data: place});
