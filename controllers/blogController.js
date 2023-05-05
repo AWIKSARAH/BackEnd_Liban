@@ -5,7 +5,7 @@ import { NotFoundError } from "../errors.js";
 
 class BlogController {
   // Get All Blogs
-  async getAllBlogs(req, res) {
+  async getAllBlogs(req, res,next) {
     const title = req.query.title;
     const options = {
       page: req.query.page || 1,
@@ -38,7 +38,7 @@ class BlogController {
   async readOne(req, res, next) {
     const { id } = req.params;
     try {
-      const blog = await Model.findOne({ _id: id });
+      const blog = await Model.findById(id);
       if (!blog) {
         throw new NotFoundError("Blog with id " + id + " not found");
       }
@@ -51,9 +51,9 @@ class BlogController {
   // New Blog
 
   async create(req, res, next) {
-    const { title, description, image } = req.body;
+   
     try {
-      const blog = await Model.create({ title, description, image });
+      const blog = await Model.create(req.body);
       res.status(200).send({ success: true, data: blog });
     } catch (error) {
       next(error);
@@ -69,11 +69,12 @@ class BlogController {
     if (title) update.title = title;
     if (description) update.description = description;
     if (image) update.image = image;
+    if (tags.length > 0) update.tags = tags
 
     try {
       const blog = await Model.findByIdAndUpdate(
         { _id: id },
-        { title, description, image },
+        update,
         { new: false }
       );
 

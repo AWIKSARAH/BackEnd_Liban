@@ -11,6 +11,7 @@ router.post("/",  placeController.create);
 
 // Read all places
 router.get("/all", placeController.read);
+router.get("/all/all", placeController.readAll);
 router.get("/conf/:type?", placeController.getPrivatePlace);
 router.get('/latest', placeController.latestPlace)
 

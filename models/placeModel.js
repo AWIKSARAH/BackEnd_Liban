@@ -10,6 +10,13 @@ const PlaceSchema = new mongoose.Schema({
     minlength: [2, "Name must be at least 2 characters long"],
     maxlength: [100, "Name must not exceed 100 characters"],
   },
+  tel: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: [7, "Name must be at least 2 characters long"],
+    maxlength: [15, "Name must not exceed 100 characters"],
+  },
   email: {
     type: String,
     required: true,

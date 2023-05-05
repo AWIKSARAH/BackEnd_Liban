@@ -50,6 +50,42 @@ class PlaceController {
         next(error)
       }
     };
+    
+  async readAll(req, res, next) {
+    const { title, page = 1, place_type } = req.query;
+    const query = {};
+  
+    if (title) {
+      query.title = new RegExp(title, "i"); // case-insensitive search
+    }
+  
+    if (place_type) {
+      query.placeType = place_type;
+    }
+  
+    const options = {
+      page: parseInt(page),
+      limit: 10, // show 10 results per page
+    };
+  
+    try {
+      const places = await PlaceModel.paginate(query, options);
+      if (!places.docs.length) {
+
+        if (place_type) {
+         throw new NotFoundError("Place not found for type " + place_type)
+        }
+        if (title) {
+         throw new NotFoundError(`No Place found for ${title}`)
+        }
+        throw new NotFoundError('Places not found')
+      } 
+              res.json(places);
+    } catch (error) {
+      next(error)
+    }
+  };
+
 
 
   async latestPlace (req, res, next)  {
@@ -120,6 +156,7 @@ class PlaceController {
   }
 
   async update(req, res, next) {
+    console.log(req.body)
     try {
       const place = await PlaceModel.findById(req.params.id);
       if (!place) {
@@ -130,36 +167,7 @@ class PlaceController {
         deleteImage(place.image);
       }
   
-      const placeUpdate = {
-        name: req.body.name,
-        website: req.body.website,
-        about: req.body.about,
-        image: req.body.image,
-        socialMedia: req.body.socialMedia?.length ? req.body.socialMedia : undefined,
-        tagIds: req.body.tagIds?.length ? req.body.tagIds : undefined,
-        location: req.body.location,
-        placeType: req.body.placeType,
-      };
-  
-      const daysOfWeek = [
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-        "sunday",
-      ];
-      const timeSlots = ["open", "close"];
-      const schedule = req.body.schedule;
-  
-      if (
-        daysOfWeek.some((day) =>
-          timeSlots.some((slot) => schedule[day]?.[slot])
-        )
-      ) {
-        placeUpdate.schedule = schedule;
-      }
+      const placeUpdate = req.body;
   
       const updatedPlace = await PlaceModel.findOneAndUpdate(
         { _id: req.params.id },
@@ -200,7 +208,7 @@ class PlaceController {
 
       }
 
-      place.confirmation = !place.confirmation;
+      place.confirmation = req.body.confirmation;
 
       const updatedPlace = await place.save();
 

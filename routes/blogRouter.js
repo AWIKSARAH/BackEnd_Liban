@@ -9,14 +9,14 @@ const router = express.Router();
 router.get ('/', controller.getAllBlogs);
 // , imageUpload('blog')
 // POST /blog
-router.post('/',imageUpload('blog'),controller.create);
+router.post('/',controller.create);
 
 
 // , imageUpload('blog')
 // GET /blog/:Id
 router.get('/:id',controller.readOne);
 // PUT /blog/:Id
-router.put('/:id', imageUpload('blog'), controller.update);
+router.put('/:id', controller.update);
 
 // DELETE /blog/:Id
 router.delete("/:id", controller.delete);
