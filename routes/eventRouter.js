@@ -6,9 +6,10 @@ const router = express.Router();
 
 router.post("/",uploadImage('event'), controller.add);
 
-router.get("/all/:type?", controller.getAll);
+router.get("/all/:type?", controller.getAll); 
 router.get("/conf/:type?", controller.getPrivateEvent);
 router.get('/latest', controller.latestPlace)
+router.get("/getEventAfter", controller.getEventAfter);
 router.get("/:id", controller.getById);
 
 router.patch("/confirm/:id", controller.updateConfirmationById);

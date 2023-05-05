@@ -3,6 +3,10 @@ import model from "../models/eventModel.js";
 
 function add(req, res, next) {
   let Add = new model(req.body);
+  if (!req.body.confirmation) {
+    Add.confirmation = false;
+  }
+
   Add.save()
     .then((response) => res.status(200).send({ success: true, response }))
     .catch((error) => {
@@ -14,64 +18,93 @@ function add(req, res, next) {
         errors.status = 422;
         throw new BadRequestError(errors);
       }
-      next(error)
+      next(error);
     });
 }
 
-
-async function getPrivateEvent(req, res) {
+//
+async function getPrivateEvent(req, res, next) {
   try {
-    const filter = {confirmation: false};
+    const filter = { confirmation: false };
     const options = {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 10,
     };
-    const title = req.query.title
-    const type = req.params.type
-    if (type){
-      filter.typeId= type
+    const title = req.query.title;
+    const category = req.query.category;
+    const type = req.params.type;
+    if (type) {
+      filter.typeId = type;
     }
     if (title) {
       filter.title = { $regex: new RegExp("^" + title, "i") };
     }
-
+    if (category) {
+      filter.category = { $regex: new RegExp("^" + category, "i") };
+    }
     const events = await model.paginate(filter, options);
 
     if (!events.docs.length) {
       if (type) {
-       throw new NotFoundError("Event not found for type " + type)
+        throw new NotFoundError("Event not found for type " + type);
       }
       if (title) {
-       throw new NotFoundError(`No event found for ${title}`)
+        throw new NotFoundError(`No event found for ${title}`);
       }
-      throw new NotFoundError(`Events not found`)
+      if (category) {
+        throw new NotFoundError(`No event found for ${category}`);
+      }
+      throw new NotFoundError(`Events not found`);
+    }
+
+    const now = Date.now();
+    const nextWeek = [];
+    const tomorrow = [];
+    const nextMonth = [];
+    const nextYear = [];
+
+    for (const event of events.docs) {
+      const timeLeft = event.start_date.getTime() - now;
+      const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+
+      if (daysLeft <= 7) {
+        nextWeek.push({ ...event._doc, timeLeft: daysLeft });
+      } else if (daysLeft === 1) {
+        tomorrow.push({ ...event._doc, timeLeft: daysLeft });
+      } else if (daysLeft <= 31) {
+        nextMonth.push({ ...event._doc, timeLeft: daysLeft });
+      } else if (daysLeft <= 365) {
+        nextYear.push({ ...event._doc, timeLeft: daysLeft });
+      }
     }
 
     res.json({
       success: true,
       data: events,
+      nextWeek,
+      tomorrow,
+      nextMonth,
+      nextYear,
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
 
-async function latestPlace (req, res, next)  {
-    
+async function latestPlace(req, res, next) {
   try {
-
     const page = 1;
-    const  limit = 3 ; 
+    const limit = 3;
 
     const latestPlaces = await model.paginate(
-      {confirmation:true},
+      { confirmation: true },
       {
-        sort: { _id: 'desc' },
+        sort: { _id: "desc" },
         page: parseInt(page),
         limit: parseInt(limit),
       }
     );
-    
+
     res.json({
       success: true,
       data: latestPlaces,
@@ -91,54 +124,71 @@ function getStatus(event) {
   }
 }
 
-async function getAll(req, res,next) {
+async function getAll(req, res, next) {
   try {
-    const filter = {confirmation: true};
+    const filter = { confirmation: true };
     const options = {
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 10,
     };
-    if (req.params.type){
-      filter.typeId= req.params.type
+    const title = req.query.title;
+    const category = req.query.category;
+    const type = req.params.type;
+    if (type) {
+      filter.typeId = type;
     }
-    if (req.query.title) {
-      filter.title = { $regex: new RegExp("^" + req.query.title, "i") };
+    if (title) {
+      filter.title = { $regex: new RegExp("^" + title, "i") };
     }
-console.log(filter);
+    if (category) {
+      filter.category = { $regex: new RegExp("^" + category, "i") };
+    }
     const events = await model.paginate(filter, options);
-    const eventsWithStatus = events.docs.map(event => {
-      return {
-        ...event.toObject(),
-        status: event.status
-      };
-    });
-    
-    console.log(eventsWithStatus[0].status); // "Coming soon"
 
     if (!events.docs.length) {
-      if (req.query.title) {
-        return res.status(404).json({
-          success: true,
-          message: `No event found for ${req.query.title}`,
-        });
+      if (type) {
+        throw new NotFoundError("Event not found for type " + type);
       }
-      return res.status(404).json({
-        success: true,
-        message: "No event found",
-      });
+      if (title) {
+        throw new NotFoundError(`No event found for ${title}`);
+      }
+      if (category) {
+        throw new NotFoundError(`No event found for ${category}`);
+      }
+      throw new NotFoundError(`Events not found`);
     }
+
+    const now = Date.now();
+    const nextWeek = [];
+    const tomorrow = [];
+    const nextMonth = [];
+    const nextYear = [];
+
+    for (const event of events.docs) {
+      const timeLeft = event.start_date.getTime() - now;
+      const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+
+      if (daysLeft <= 7) {
+        nextWeek.push({ ...event._doc, timeLeft: daysLeft });
+      } else if (daysLeft === 1) {
+        tomorrow.push({ ...event._doc, timeLeft: daysLeft });
+      } else if (daysLeft <= 31) {
+        nextMonth.push({ ...event._doc, timeLeft: daysLeft });
+      } else if (daysLeft <= 365) {
+        nextYear.push({ ...event._doc, timeLeft: daysLeft });
+      }
+    }
+
     res.json({
       success: true,
-      data: {
-        docs: events.docs,
-        totalDocs: events.totalDocs,
-        totalPages: events.totalPages,
-        page: events.page,
-        limit: events.limit,
-        status: events.docs.length ? getStatus(events.docs[0]) : null
-      }    });
+      data: events,
+      nextWeek,
+      tomorrow,
+      nextMonth,
+      nextYear,
+    });
   } catch (error) {
-   next(error)
+    next(error);
   }
 }
 
@@ -151,7 +201,7 @@ async function getById(req, res, next) {
     }
     res.status(200).send({ success: true, event });
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
 
@@ -185,7 +235,7 @@ function Delete(req, res, next) {
     .findByIdAndRemove(id)
     .then((response) => {
       if (!response) {
-     throw new NotFoundError("Event not found")
+        throw new NotFoundError("Event not found");
       }
       res.status(200).send({
         success: true,
@@ -212,7 +262,7 @@ async function deleteAll(req, res, next) {
 }
 
 export const updateConfirmationById = async (req, res) => {
-  const eventId = req.params.id; 
+  const eventId = req.params.id;
   try {
     const event = await model.findById(eventId);
     if (!event) {
@@ -238,5 +288,33 @@ export const updateConfirmationById = async (req, res) => {
     });
   }
 };
-const event = { add, getAll, getById, edit, Delete, deleteAll, getPrivateEvent,updateConfirmationById ,latestPlace};
+
+async function getEventAfter(req, res, next) {
+  const { startDate, endDate } = req.query;
+
+  try {
+    const events = await Event.find({
+      start_date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    });
+
+    res.json(events);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+
+const event = {
+  add,
+  getAll,
+  getById,
+  edit,
+  Delete,
+  deleteAll,
+  getPrivateEvent,
+  updateConfirmationById,
+  latestPlace,
+  getEventAfter,
+};
+
 export default event;

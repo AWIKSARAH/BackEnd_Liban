@@ -114,27 +114,13 @@ const eventSchema = new Schema(
     toJSON: { virtuals: true }, // add this to include virtual properties when the model is converted to JSON
   }
 );
+
 eventSchema.virtual("status").get(function () {
-  const now = Date.now();
-  const timeLeft = this.start_date.getTime() - now;
-
+  const now = new Date();
   if (this.start_date > now) {
-    const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    const hoursLeft = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-    const yearsLeft = Math.floor(daysLeft / 365);
-    const monthsLeft = Math.floor((daysLeft % 365) / 30);
-    const weeksLeft = Math.floor((daysLeft % 365) / 7);
-    const daysOnlyLeft = daysLeft % 7;
-
-    return {
-      status: "Coming soon",
-      timeLeft: `${yearsLeft} years, ${monthsLeft} months, ${weeksLeft} weeks, ${daysOnlyLeft} days, ${hoursLeft} hours, ${minutesLeft} minutes remaining`,
-    };
+    return "Coming soon";
   } else if (this.start_date <= now && this.end_date >= now) {
-    return { status: "Now", timeLeft: "Event is happening now!" };
+    return "Now";
   } else {
     return "Closed";
   }
