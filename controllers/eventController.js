@@ -26,7 +26,7 @@ async function readAll(req, res, next) {
 
     const type = req.params.type;
     if (type) {
-      filter.typeId = type;
+      filter.type = type;
     }
 
     // Add filter for date range
@@ -81,7 +81,7 @@ async function getPrivateEvent(req, res, next) {
 
     const type = req.params.type;
     if (type) {
-      filter.typeId = type;
+      filter.type = type;
     }
 
     // Add filter for date range
@@ -168,7 +168,7 @@ async function getAll(req, res, next) {
 
     const type = req.params.type;
     if (type) {
-      filter.typeId = type;
+      filter.type = type;
     }
 
     // Add filter for date range

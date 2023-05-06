@@ -6,6 +6,7 @@ import { NotFoundError } from "../errors.js";
 class BlogController {
   // Get All Blogs
   async getAllBlogs(req, res,next) {
+    const type= req.query.type;
     const title = req.query.title;
     const options = {
       page: req.query.page || 1,
@@ -13,6 +14,9 @@ class BlogController {
     };
     const filters = {};
     try {
+      if(type){
+        filters.type=type
+      }
       if (title) {
         filters.title = { $regex: new RegExp("^" + title, "i") };
       }
