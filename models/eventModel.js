@@ -7,12 +7,11 @@ const eventSchema = new Schema(
       type: String,
       required: true,
     },
-    website:{
+    website: {
       type: String,
-
     },
-    tel:{
-      type:String,
+    tel: {
+      type: String,
       required: true,
     },
     description: {
@@ -88,6 +87,7 @@ const eventSchema = new Schema(
     ],
     type: {
       type: String,
+      enum: ["events", "activities", "evenings"],
       required: true,
     },
     category: {

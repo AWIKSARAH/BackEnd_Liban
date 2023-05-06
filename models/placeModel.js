@@ -59,7 +59,7 @@ const PlaceSchema = new mongoose.Schema({
       message: "At least one social media account is required",
     },
   },
- 
+
   schedule: {
     type: {
       monday: {
@@ -140,7 +140,27 @@ const PlaceSchema = new mongoose.Schema({
   },
   placeType: {
     type: String,
-    enum: ["restaurant","services","ngo","clubs"],
+    enum: [
+      "health",
+      "food",
+      "readytowear",
+      "services",
+      "places",
+      "rentalspaces",
+      "community",
+      "caterers",
+      "restaurants",
+      "groceries",
+      "pastryshops",
+      "ouraddresses",
+      "gastronomy",
+      "streetfood",
+      "restaurantofthemonth",
+      "news",
+      "associations",
+      "courses",
+    ],
+
     required: true,
   },
   tags: [
@@ -157,10 +177,3 @@ const PlaceSchema = new mongoose.Schema({
 PlaceSchema.plugin(mongoosePaginate);
 const PlaceModel = mongoose.model("Place", PlaceSchema);
 export default PlaceModel;
-
-PlaceSchema.pre(["find", "findOneAndUpdate", "updateOne"], function () {
-  this.populate({ path: "tagIds", select: "name description" }).populate(
-    "typeId",
-    "name description"
-  );
-});

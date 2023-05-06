@@ -20,6 +20,21 @@ const BlogSchema = new Schema(
     image: {
       type: String,
     },
+    type: {
+      type: String,
+      enum: [
+        "jobs",
+        "housing",
+        "sale",
+        "activities",
+        "invitations",
+        "discounts",
+        "blog",
+        "tourism",
+        "youth",
+      ],
+      required:true,
+    },
   },
   {
     collection: "Blog",
