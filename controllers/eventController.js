@@ -24,7 +24,7 @@ async function readAll(req, res, next) {
       filter["$or"] = [        { category: { $regex: regex } },        { title: { $regex: regex } },        { tags: { $regex: regex } },      ];
     }
 
-    const type = req.params.type;
+    const type = req.query.type;
     if (type) {
       filter.type = type;
     }
@@ -79,7 +79,7 @@ async function getPrivateEvent(req, res, next) {
       filter["$or"] = [        { category: { $regex: regex } },        { title: { $regex: regex } },        { tags: { $regex: regex } },      ];
     }
 
-    const type = req.params.type;
+    const type = req.query.type;
     if (type) {
       filter.type = type;
     }
@@ -166,7 +166,7 @@ async function getAll(req, res, next) {
       filter["$or"] = [        { category: { $regex: regex } },        { title: { $regex: regex } },        { tags: { $regex: regex } },      ];
     }
 
-    const type = req.params.type;
+    const type = req.query.type;
     if (type) {
       filter.type = type;
     }

@@ -7,8 +7,8 @@ const router = express.Router();
 router.post("/", controller.add);
 router.get("/all/all", controller.readAll);
 
-router.get("/all/:type?", controller.getAll); 
-router.get("/conf/:type?", controller.getPrivateEvent);
+router.get("/all/", controller.getAll); 
+router.get("/conf/", controller.getPrivateEvent);
 router.get('/latest', controller.latestPlace)
 router.get("/getEventAfter", controller.getEventAfter);
 router.get("/:id", controller.getById);
