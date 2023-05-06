@@ -7,12 +7,15 @@ const eventSchema = new Schema(
       type: String,
       required: true,
     },
-
-    description: {
+    website:{
       type: String,
+
+    },
+    tel:{
+      type:String,
       required: true,
     },
-    tel: {
+    description: {
       type: String,
       required: true,
     },
@@ -77,17 +80,15 @@ const eventSchema = new Schema(
       type: String,
       required: true,
     },
-    tagIds: [
+    tags: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Tag",
-        required: false,
+        type: String,
+        required: true,
       },
     ],
-    typeId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Type",
-      required: false,
+    type: {
+      type: String,
+      required: true,
     },
     category: {
       type: String,
@@ -119,38 +120,38 @@ const eventSchema = new Schema(
     toJSON: { virtuals: true }, // add this to include virtual properties when the model is converted to JSON
   }
 );
-eventSchema.virtual("status").get(function () {
-  const now = Date.now();
-  const timeLeft = this.start_date.getTime() - now;
+// eventSchema.virtual("status").get(function () {
+//   const now = Date.now();
+//   const timeLeft = this.start_date.getTime() - now;
 
-  if (this.start_date > now) {
-    const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    const hoursLeft = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-    const yearsLeft = Math.floor(daysLeft / 365);
-    const monthsLeft = Math.floor((daysLeft % 365) / 30);
-    const weeksLeft = Math.floor((daysLeft % 365) / 7);
-    const daysOnlyLeft = daysLeft % 7;
+//   if (this.start_date > now) {
+//     const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+//     const hoursLeft = Math.floor(
+//       (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+//     );
+//     const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+//     const yearsLeft = Math.floor(daysLeft / 365);
+//     const monthsLeft = Math.floor((daysLeft % 365) / 30);
+//     const weeksLeft = Math.floor((daysLeft % 365) / 7);
+//     const daysOnlyLeft = daysLeft % 7;
 
-    return {
-      status: "Coming soon",
-      timeLeft: `${yearsLeft} years, ${monthsLeft} months, ${weeksLeft} weeks, ${daysOnlyLeft} days, ${hoursLeft} hours, ${minutesLeft} minutes remaining`,
-    };
-  } else if (this.start_date <= now && this.end_date >= now) {
-    return { status: "Now", timeLeft: "Event is happening now!" };
-  } else {
-    return "Closed";
-  }
-});
+//     return {
+//       status: "Coming soon",
+//       timeLeft: `${yearsLeft} years, ${monthsLeft} months, ${weeksLeft} weeks, ${daysOnlyLeft} days, ${hoursLeft} hours, ${minutesLeft} minutes remaining`,
+//     };
+//   } else if (this.start_date <= now && this.end_date >= now) {
+//     return { status: "Now", timeLeft: "Event is happening now!" };
+//   } else {
+//     return "Closed";
+//   }
+// });
 
-eventSchema.pre(["find", "findOneAndUpdate", "updateOne"], function () {
-  this.populate({ path: "tagIds", select: "name description" }).populate(
-    "typeId",
-    "name description"
-  );
-});
+// eventSchema.pre(["find", "findOneAndUpdate", "updateOne"], function () {
+//   this.populate({ path: "tagIds", select: "name description" }).populate(
+//     "typeId",
+//     "name description"
+//   );
+// });
 
 eventSchema.plugin(mongoosePaginate);
 
