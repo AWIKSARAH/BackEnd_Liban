@@ -32,7 +32,7 @@ app.use("/api/user/", User_Routes);
 app.use("/api/info/", contactInfo);
 app.use("/api/places", placeRouter);
 app.use("/api/types", typeRouter);
-app.use("/api/event", event_page);
+app.use("/api/events", event_page);
 app.use("/api/tag", tagRouter);
 app.use("/api/news", newsletter);
 app.use("/api/blog", blogRouter);
