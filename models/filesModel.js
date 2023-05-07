@@ -1,10 +1,13 @@
-import mongoose from "mongoose"
-const fileSchema = mongoose.Schema({
-    image:{
-        type:String,
-        required:true,
-    }
-},{timestamps:true})
-const File = mongoose.model('File', fileSchema);
+import mongoose from "mongoose";
+const fileSchema = mongoose.Schema(
+  {
+    image: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+const File = mongoose.model("File", fileSchema);
 
-export default File
+export default File;

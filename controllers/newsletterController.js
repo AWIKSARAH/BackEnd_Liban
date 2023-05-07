@@ -40,5 +40,23 @@ const get = async (req, res) => {
     next(error)
   }
 };
-const news = { create, get };
+
+
+const deleteNews = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedNewsletter = await model.findByIdAndDelete(id);
+    if (!deletedNewsletter) {
+      return res.status(404).json({ message: "Newsletter not found" });
+    }
+    res.json({ message: "Newsletter deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+const news = { create, get,deleteNews};
 export default news;
