@@ -12,7 +12,7 @@ import tagRouter from "./routes/tagRouter.js";
 import newsletter from "./routes/newsletterRouter.js";
 import blogRouter from "./routes/blogRouter.js";
 import fileRouter from "./routes/fileRouter.js";
-
+import {visitorTracker} from "./controllers/visitor.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -20,9 +20,7 @@ connection();
 
 app.use(morgan("dev"));
 
-app.get("/", function (req, res) {
-  res.send(":)))(((:");
-});
+app.use("/visitor", visitorTracker);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

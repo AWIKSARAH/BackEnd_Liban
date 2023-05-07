@@ -165,7 +165,7 @@ async function getAll(req, res, next) {
       const regex = new RegExp(query, "i");
       filter["$or"] = [        { category: { $regex: regex } },        { title: { $regex: regex } },        { tags: { $regex: regex } },      ];
     }
-
+console.log(query);
     const type = req.query.type;
     if (type) {
       filter.type = type;

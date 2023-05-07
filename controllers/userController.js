@@ -42,10 +42,10 @@ export const login = async (req, res, next) => {
  * @returns JsonResponse
  */
 export const createUser = async (req, res, next) => {
-  const { name, email, password, IsAdmin } = req.body;
+  const { name, email, password, IsAdmin,tel } = req.body;
 
   try {
-    const user = await Users.create({ name, email, password, IsAdmin });
+    const user = await Users.create({ name, email, password, IsAdmin,tel });
 
     res.status(201).json({
       success: true,
@@ -132,11 +132,11 @@ export const deleteUser = async (req, res) => {
  * function to Update user profile
  */
 export const updateUser = async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email,tel } = req.body;
   try {
     const updatedUser = await Users.findByIdAndUpdate(
       req.user._id,
-      { name: name, email: email },
+      { name: name, email: email,tel:tel },
       {
         new: true,
       }
@@ -155,6 +155,42 @@ export const updateUser = async (req, res) => {
     });
   } catch (error) {
     next(error)
+  }
+};
+//
+
+
+export const updateUsers = async (req, res, next) => {
+  const { name, email, tel } = req.body;
+  
+  // Check if email is valid
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid email address",
+    });
+  }
+
+  try {
+    const updatedUser = await Users.findByIdAndUpdate(
+      req.params.id,
+      { name: name, email: email, tel: tel },
+      {
+        new: true,
+      }
+    );
+
+    if (!updatedUser) {
+      throw new NotFoundError("User not found");
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
