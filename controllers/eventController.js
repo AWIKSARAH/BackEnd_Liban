@@ -122,7 +122,7 @@ async function getPrivateEvent(req, res, next) {
 async function latestPlace(req, res, next) {
   try {
     const page = 1;
-    const limit = 3;
+    const limit = 10;
 
     const latestPlaces = await model.paginate(
       { confirmation: true },

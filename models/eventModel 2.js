@@ -126,12 +126,7 @@ eventSchema.virtual("status").get(function () {
   }
 });
 
-eventSchema.pre(["find", "findOneAndUpdate", "updateOne"], function () {
-  this.populate({ path: "tagIds", select: "name description" }).populate(
-    "typeId",
-    "name description"
-  );
-});
+
 
 eventSchema.plugin(mongoosePaginate);
 
