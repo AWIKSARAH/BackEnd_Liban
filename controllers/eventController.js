@@ -279,7 +279,7 @@ async function deleteAll(req, res, next) {
 export const updateConfirmationById = async (req, res) => {
   const eventId = req.params.id;
   try {
-    const event = await model.findById(eventId);
+    const event = await model.findByIdAndUpdate(eventId,{confirmation:req.body.confirmation});
     if (!event) {
       return res.status(404).json({
         success: false,
@@ -287,13 +287,9 @@ export const updateConfirmationById = async (req, res) => {
       });
     }
 
-    event.confirmation = !event.confirmation;
-
-    const updatedEvent = await event.save();
-
     return res.status(200).json({
       success: true,
-      data: updatedEvent,
+      data: event,
     });
   } catch (error) {
     console.error(error);
