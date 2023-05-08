@@ -39,7 +39,7 @@ export const get = (req, res, next) => {
 /**
  * Functioon to update a contact with Information
  */
-export const updateContact = async (req, res) => {
+export const updateContact = async (req, res,next) => {
   const _id = req.params.id;
   const newImage = req.body.image;
   try {

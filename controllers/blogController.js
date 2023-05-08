@@ -109,9 +109,9 @@ class BlogController {
       if (!blog) {
         throw new NotFoundError("Blog with id" + id + "not found");
       }
-      if (blog.image) {
-        fs.unlinkSync(blog.image);
-      }
+      // if (image) {
+        // fs.unlinkSync(blog.image);
+      // }
       await Model.findByIdAndDelete({ _id: id });
       res
         .status(200)
