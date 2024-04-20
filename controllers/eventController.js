@@ -1,139 +1,266 @@
+import { BadRequestError, NotFoundError } from "../errors.js";
+import model from "../models/eventModel.js";
+import moment from "moment"
 
-
-import model from '../models/eventModel.js';//TypeModel
-import TypeModel from '../models/typeModel.js';//TypeModel
-const PAGE_SIZE = 5;
-
-function add(req, res, next) {
-  let Add = new model(req.body)
-  Add.save()
+ function add(req, res, next) {
+  req.body.confirmation=false;
+   model.create(req.body)
     .then((response) => res.status(200).send({ success: true, response }))
-    .catch((err) => {
-      res.status(400).send(err.message)
-    })
-}  
-
- 
-
-async function getAll(req, res,next) {
+    .catch((error) => {
+      next(error);
+    });
+}
+async function readAll(req, res, next) {
   try {
-    const pageNumber = req.query.page || 1;
-    const skipCount = (pageNumber - 1) * PAGE_SIZE;
-    console.lo
-    const filter = {};
-    if (req.params.type) {
-      filter.typeId = req.params.type
-      console.log(req.params.type)
+    const filter={}
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      limit: parseInt(req.query.limit) || 10,
+    };
+    const query = req.query.q;
+
+    if (query) {
+      const regex = new RegExp(query, "i");
+      filter["$or"] = [        { category: { $regex: regex } },        { title: { $regex: regex } },        { tags: { $regex: regex } },      ];
     }
-    if (req.query.title) {
-      filter.title =  { $regex: `.*${req.query.title}.*`, $options: "i" };
-      
+
+    const type = req.query.type;
+    if (type) {
+      filter.type = type;
     }
 
-  
-    const totalEvent= await model.countDocuments(filter);
-    const totalPages = Math.ceil(totalEvent/ PAGE_SIZE);
+    // Add filter for date range
+    const range = req.query.range;
+    let startDate, endDate;
+    if (range === "thisWeek") {
+      startDate = moment().startOf("week").toDate();
+      endDate = moment().endOf("week").toDate();
+    } else if (range === "thisMonth") {
+      startDate = moment().startOf("month").toDate();
+      endDate = moment().endOf("month").toDate();
+    } else if (range === "custom" && req.query.startDate && req.query.endDate) {
+      startDate = moment(req.query.startDate).startOf("day").toDate();
+      endDate = moment(req.query.endDate).endOf("day").toDate();
+    }
+    if (startDate && endDate) {
+      filter.start_date = { $gte: startDate, $lte: endDate };
+    }
 
-    const events = await model.find(filter).skip(skipCount).limit(PAGE_SIZE);
+    const events = await model.paginate(filter, options);
 
-    return res.status(200).json({
+    if (!events.docs.length) {
+      if (type) {
+        throw new NotFoundError("Event not found for type " + type);
+      }
+      throw new NotFoundError(`No event found for ${query}`);
+    }
+
+    res.json({
       success: true,
       data: events,
-      pageNumber: pageNumber,
-      totalPages: totalPages
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
+  }
+}
+//
+async function getPrivateEvent(req, res, next) {
+ 
+  try {
+    const filter = {confirmation:false};
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      limit: parseInt(req.query.limit) || 10,
+    };
+    const query = req.query.q;
+
+    if (query) {
+      const regex = new RegExp(query, "i");
+      filter["$or"] = [        { category: { $regex: regex } },        { title: { $regex: regex } },        { tags: { $regex: regex } },      ];
+    }
+
+    const type = req.query.type;
+    if (type) {
+      filter.type = type;
+    }
+
+    // Add filter for date range
+    const range = req.query.range;
+    let startDate, endDate;
+    if (range === "thisWeek") {
+      startDate = moment().startOf("week").toDate();
+      endDate = moment().endOf("week").toDate();
+    } else if (range === "thisMonth") {
+      startDate = moment().startOf("month").toDate();
+      endDate = moment().endOf("month").toDate();
+    } else if (range === "custom" && req.query.startDate && req.query.endDate) {
+      startDate = moment(req.query.startDate).startOf("day").toDate();
+      endDate = moment(req.query.endDate).endOf("day").toDate();
+    }
+    if (startDate && endDate) {
+      filter.start_date = { $gte: startDate, $lte: endDate };
+    }
+
+    const events = await model.paginate(filter, options);
+
+    if (!events.docs.length) {
+      if (type) {
+        throw new NotFoundError("Event not found for type " + type);
+      }
+      throw new NotFoundError(`No event found for ${query}`);
+    }
+
+    res.json({
+      success: true,
+      data: events,
+    });
+  } catch (error) {
+    next(error);
   }
 }
 
+async function latestPlace(req, res, next) {
+  try {
+    const page = 1;
+    const limit = 10;
 
+    const latestPlaces = await model.paginate(
+      { confirmation: true },
+      {
+        sort: { _id: "desc" },
+        page: parseInt(page),
+        limit: parseInt(limit),
+      }
+    );
 
+    res.json({
+      success: true,
+      data: latestPlaces,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+function getStatus(event) {
+  const now = new Date();
+  if (event.start_date > now) {
+    return "Coming soon";
+  } else if (event.start_date <= now && event.end_date >= now) {
+    return "Now";
+  } else {
+    return "Closed";
+  }
+}
 
+async function getAll(req, res, next) {
+  try {
+    const filter = {confirmation:true};
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      limit: parseInt(req.query.limit) || 10,
+    };
+    const query = req.query.q;
 
+    if (query) {
+      const regex = new RegExp(query, "i");
+      filter["$or"] = [        { category: { $regex: regex } },        { title: { $regex: regex } },        { tags: { $regex: regex } },      ];
+    }
+console.log(query);
+    const type = req.query.type;
+    if (type) {
+      filter.type = type;
+    }
+
+    // Add filter for date range
+    const range = req.query.range;
+    let startDate, endDate;
+    if (range === "thisWeek") {
+      startDate = moment().startOf("week").toDate();
+      endDate = moment().endOf("week").toDate();
+    } else if (range === "thisMonth") {
+      startDate = moment().startOf("month").toDate();
+      endDate = moment().endOf("month").toDate();
+    } else if (range === "custom" && req.query.startDate && req.query.endDate) {
+      startDate = moment(req.query.startDate).startOf("day").toDate();
+      endDate = moment(req.query.endDate).endOf("day").toDate();
+    }
+    if (startDate && endDate) {
+      filter.start_date = { $gte: startDate, $lte: endDate };
+    }
+
+    const events = await model.paginate(filter, options);
+
+    if (!events.docs.length) {
+      if (type) {
+        throw new NotFoundError("Event not found for type " + type);
+      }
+      throw new NotFoundError(`No event found for ${query}`);
+    }
+
+    res.json({
+      success: true,
+      data: events,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 
 async function getById(req, res, next) {
   try {
-    const id = req.params.id
-    const event = await model.findOne({ _id: id })
+    const id = req.params.id;
+    const event = await model.findById(id);
     if (!event) {
-      return res.status(404).send({ success: false, error: 'Event not found' })
+      return res.status(404).send({ success: false, error: "Event not found" });
     }
-    res.status(200).send({ success: true, event })
-  } catch (err) {
-    res.status(500).send({ success: false, error: err.message })
+    res.status(200).send({ success: true, data:event });
+  } catch (error) {
+    next(error);
   }
 }
-
-
-
-
-
-
-async function getByTitle(req, res, next) {
-  try {
-    const title = req.params.title;
-    const pageNumber = req.query.page || 1;
-    const skipCount = (pageNumber - 1) * PAGE_SIZE;
-
-    const events = await model
-      .find({ title: { $regex: title, $options: "i" } })
-      .skip(skipCount)
-      .limit(PAGE_SIZE);
-
-    const totalEvents = await model.countDocuments({ title: { $regex: title, $options: "i" } });
-    const totalPages = Math.ceil(totalEvents / PAGE_SIZE);
-
-    if (!events.length) {
-      return res.status(404).send({ success: false, error: 'Event not found' })
-    }
-
-    res.status(200).send({ success: true, events, pageNumber, totalPages });
-  } catch (err) {
-    res.status(500).send({ success: false, error: err.message })
-  }
-}
-
-
 
 function edit(req, res, next) {
   const id = req.params.id;
   const body = req.body;
 
-  model.updateOne({ _id: id }, { $set: body })
-    .then(response => {
+  model
+    .updateOne({ _id: id }, { $set: body })
+    .then((response) => {
       if (response.nModified === 0) {
-        return res.status(404).send({ success: false, message: "No matching document found." });
+        return res
+          .status(404)
+          .send({ success: false, message: "You haven'\t modified anything" });
       }
-      res.status(200).send({ success: true, message: "Document updated successfully.",body, response });
+      res.status(200).send({
+        success: true,
+        message: "Document updated successfully.",
+        body,
+        response,
+      });
     })
-    .catch(err => {
-      return next(err);
+    .catch((error) => {
+      next(error);
     });
 }
 
 function Delete(req, res, next) {
-  const id = req.params.id
+  const id = req.params.id;
   model
     .findByIdAndRemove(id)
     .then((response) => {
       if (!response) {
-        return res
-          .status(404)
-          .send({ success: false, message: 'No matching document found.' })
+        throw new NotFoundError("Event not found");
       }
-      res
-        .status(200)
-        .send({
-          success: true,
-          message: 'Document deleted successfully.',
-          response,
-        })
+      res.status(200).send({
+        success: true,
+        message: "Document deleted successfully.",
+        response,
+      });
     })
-    .catch((err) => {
-      return next(err)
-    })
+    .catch((error) => {
+      next(error);
+    });
 }
 
 async function deleteAll(req, res, next) {
@@ -144,10 +271,62 @@ async function deleteAll(req, res, next) {
       message: "All documents deleted successfully.",
       response,
     });
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return next(error);
   }
 }
 
-const event = { add, getAll, getById, getByTitle, edit, Delete ,deleteAll }
-export default event
+export const updateConfirmationById = async (req, res) => {
+  const eventId = req.params.id;
+  try {
+    const event = await model.findByIdAndUpdate(eventId,{confirmation:req.body.confirmation});
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        error: "Event not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: event,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      error: error,
+    });
+  }
+};
+
+async function getEventAfter(req, res, next) {
+  const { startDate, endDate } = req.query;
+
+  try {
+    const events = await Event.find({
+      start_date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    });
+
+    res.json(events);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+
+const event = {
+  add,
+  getAll,
+  getById,
+  edit,
+  Delete,
+  deleteAll,
+  getPrivateEvent,
+  updateConfirmationById,
+  latestPlace,
+  getEventAfter,
+  readAll,
+};
+
+export default event;

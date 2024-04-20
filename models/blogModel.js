@@ -1,31 +1,46 @@
 import mongoose from "mongoose";
-const {Schema, model} = mongoose;
-const Blogschema = new Schema({
-    tag_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Tag",
-    },
+import mongoosePaginate from "mongoose-paginate-v2";
+const { Schema, model } = mongoose;
+const BlogSchema = new Schema(
+  {
+    tags: [
+      {
+        type: String,
+      },
+    ],
     title: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
+
     description: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     image: {
-        type: String,
+      type: String,
+    },
+    type: {
+      type: String,
+      enum: [
+        "jobs",
+        "housing",
+        "sale",
+        "activities",
+        "invitations",
+        "discounts",
+        "blog",
+        "tourism",
+        "youth",
+      ],
+      required:true,
+    },
+  },
+  {
+    collection: "Blog",
+  }
+);
+BlogSchema.plugin(mongoosePaginate);
 
-    }
-},
-    {
-        collection: "Blog"
-    }
-)
-    ;
-Blogschema.pre(["find", "findOne"], function () {
-    this.populate(["tag_id"]);
-});
-
-const blogschema = model("Blog", Blogschema);
-export default blogschema;
+const blogModel = model("Blog", BlogSchema);
+export default blogModel;

@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
   filename: function (req, file, callback) {
     callback(
       null,
-      file.fieldname + "-" + Date.now() + "." + file.mimetype.split("/")[1]
+      file.fieldname + "-" + Date.now() + "." + file.originalname.split(".").pop()
     );
   },
 });
@@ -22,20 +22,19 @@ export default function uploadImage(imageName) {
 
     // Use the `upload.single()` middleware for requests with an image file
     try {
-    upload.single(imageName)(req, res, function (err) {
+      upload.single(imageName)(req, res, function (err) {
         if (err) {
-         console.log(err)
+          console.log(err);
         }
         // Check if a file has been uploaded
         if (req.file) {
-          const destinationPath = "./uploads"; // use a default value for destination
-          req.body.image = `${destinationPath}/${req.file.filename}`;
+          req.body.image = "/uploads/" +req.file.filename;
         }
+        next();
       });
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-    next();
   };
 }
 

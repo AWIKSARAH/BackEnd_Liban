@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 const { Schema, model } = mongoose;
 const eventSchema = new Schema(
   {
@@ -6,9 +7,16 @@ const eventSchema = new Schema(
       type: String,
       required: true,
     },
+    website: {
+      type: String,
+    },
+    tel: {
+      type: String,
+      required: true,
+    },
     description: {
       type: String,
-      // required: true,
+      required: true,
     },
     start_date: {
       type: Date,
@@ -17,8 +25,8 @@ const eventSchema = new Schema(
         validator: function (value) {
           return value < this.end_date && value > new Date();
         },
-        message: props => `Invalid start date`
-      }
+        message: (props) => `Invalid start date`,
+      },
     },
     end_date: {
       type: Date,
@@ -27,8 +35,8 @@ const eventSchema = new Schema(
         validator: function (value) {
           return value > this.start_date && value > new Date();
         },
-        message: props => `Invalid end date`
-      }
+        message: (props) => `Invalid end date`,
+      },
     },
     location: {
       type: String,
@@ -44,12 +52,18 @@ const eventSchema = new Schema(
               2,
               "Social media name must be at least 2 characters long",
             ],
-            maxlength: [100, "Social media name must not exceed 100 characters"],
+            maxlength: [
+              100,
+              "Social media name must not exceed 100 characters",
+            ],
           },
           url: {
             type: String,
             required: true,
-            minlength: [2, "Social media url must be at least 2 characters long"],
+            minlength: [
+              2,
+              "Social media url must be at least 2 characters long",
+            ],
             maxlength: [500, "Social media url must not exceed 500 characters"],
           },
         },
@@ -65,37 +79,81 @@ const eventSchema = new Schema(
       type: String,
       required: true,
     },
-    tagIds: [
+    tags: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref:'Tag',
-        required: false,
-        
+        type: String,
+        required: true,
       },
     ],
-    typeId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Type",
+    type: {
+      type: String,
+      enum: ["events", "activities", "evenings"],
       required: true,
     },
-    confitmation:{
+    category: {
+      type: String,
+      enum: [
+        "cinema",
+        "theatre",
+        "exposition",
+        "concert",
+        "enfant",
+        "visite",
+        "guide",
+        "festival",
+        "music",
+        "workshops",
+        "literature",
+        "performance",
+        "webinar",
+      ],
+      required: true,
+    },
+    confirmation: {
       type: Boolean,
       default: false,
-    }
-    
+    },
   },
+
   {
     collection: "Event",
+    toJSON: { virtuals: true }, // add this to include virtual properties when the model is converted to JSON
   }
 );
+eventSchema.virtual("status").get(function () {
+  const now = Date.now();
+  const timeLeft = this.start_date.getTime() - now;
 
-eventSchema.pre(['find','findOneAndUpdate','updateOne'], function() {
-  console.log(this.tagIds);
-  this.populate({ path: 'tagIds', select: 'name description' })
-      .populate('typeId', 'name description');
+  if (this.start_date > now) {
+    const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hoursLeft = Math.floor(
+      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const yearsLeft = Math.floor(daysLeft / 365);
+    const monthsLeft = Math.floor((daysLeft % 365) / 30);
+    const weeksLeft = Math.floor((daysLeft % 365) / 7);
+    const daysOnlyLeft = daysLeft % 7;
+
+    return {
+      status: "Coming soon",
+      timeLeft: `${yearsLeft} years, ${monthsLeft} months, ${weeksLeft} weeks, ${daysOnlyLeft} days, ${hoursLeft} hours, ${minutesLeft} minutes remaining`,
+    };
+  } else if (this.start_date <= now && this.end_date >= now) {
+    return { status: "Now", timeLeft: "Event is happening now!" };
+  } else {
+    return "Closed";
+  }
 });
 
+// eventSchema.pre(["find", "findOneAndUpdate", "updateOne"], function () {
+//   this.populate({ path: "tagIds", select: "name description" }).populate(
+//     "typeId",
+//     "name description"
+//   );
+// });
 
+eventSchema.plugin(mongoosePaginate);
 
 const Event = model("Event", eventSchema);
 export default Event;

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const TypeSchema = new mongoose.Schema({
   name: {
@@ -14,5 +15,7 @@ const TypeSchema = new mongoose.Schema({
     trim: true,
   }
 });
+TypeSchema.plugin(mongoosePaginate);
 const TypeModel = mongoose.model("Type", TypeSchema);
+
 export default TypeModel;

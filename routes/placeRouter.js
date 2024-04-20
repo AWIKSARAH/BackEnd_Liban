@@ -1,27 +1,31 @@
 import express from "express";
-import PlaceController from "../controllers/placeController.js";
+import placeController from "../controllers/placeController.js";
 import uploadImage from "../middleware/imageHandlerMiddleware.js";
+import requiredAuth from "../middleware/jwtAuthenticationMiddleware.js";
 
 const router = express.Router();
-const placeController = new PlaceController();
 
 // Create a new place
-router.post("/", uploadImage("place"), placeController.create);
+router.post("/", placeController.create);
 
-// place by type
-router.get("/type/:typeId", placeController.readByTypeId);
+// Read all places
+router.get("/all", placeController.read);
+router.get("/all/all", requiredAuth, placeController.readAll);
+router.get("/conf/", requiredAuth, placeController.getPrivatePlace);
+router.get("/latest", placeController.latestPlace);
 
 // Read a place by ID
 router.get("/:id", placeController.readOne);
 
-// Read all places
-
-router.get("/", placeController.read);
-
 // Update a place by ID
-router.put("/:id", uploadImage("place"), placeController.update);
+router.put("/:id", requiredAuth, placeController.update);
+router.patch(
+  "/confirm/:id",
+  requiredAuth,
+  placeController.updateConfirmationById
+);
 
 // Delete a place by ID
-router.delete("/:id", placeController.delete);
+router.delete("/:id", requiredAuth, placeController.delete);
 
 export default router;

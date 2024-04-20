@@ -1,0 +1,186 @@
+{
+	"info": {
+		"_postman_id": "360ae780-1e60-46d2-a248-21379208418c",
+		"name": "AboutInfo",
+		"description": "# Introduction\nThis API provides endpoints for managing contact information. Developers can use the API to create, retrieve, and update contact information.\n# Overview\nThe API supports the following endpoints:\n\nGET /contact-info - Retrieves a list of contact information.\nPOST /contact-info - Creates a new contact information.\nPATCH /contact-info/:id - Updates an existing contact information by ID.\nThe API uses JSON as its primary data format and expects the following data fields in the request body for creating and updating contact information:\n\nname (string) - The name of the contact.\nemail (string) - The email address of the contact.\nphone (string) - The phone number of the contact.\nlogo (file) - An image file representing the contact's logo.\nThe API also requires authentication using JSON Web Tokens (JWTs) for certain endpoints, and image file uploads are handled using the multer middleware.\n# Authentication\nThe POST and PATCH endpoints require authentication using a valid JWT. The JWT should be included in the Authorization header of the HTTP request, prefixed with the word \"Bearer\" and separated by a space.\n# Error Codes\nThe API may return various HTTP status codes and error responses to indicate the result of a request. Here are some common error codes and their meanings:\n\n200 OK - The request was successful.\n201 Created - The request was successful and a new resource was created.\n400 Bad Request - The request was invalid or malformed.\n401 Unauthorized - The user is not authenticated or does not have sufficient privileges to access the resource.\n403 Forbidden - The user is authenticated but not authorized to access the resource.\n404 Not Found - The requested resource was not found.\n409 Conflict - The request conflicts with the state of the resource, such as attempting to create a resource that already exists.\n500 Internal Server Error - An error occurred on the server.\n# Rate limit\nIs there a limit to the number of requests a user can send?",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25082983"
+	},
+	"item": [
+		{
+			"name": "http://localhost:5009/api/info/",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5009/api/info/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5009",
+					"path": [
+						"api",
+						"info",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:5009/api/info/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5009",
+							"path": [
+								"api",
+								"info",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "http://localhost:5009/api/info/",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5009/api/info/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5009",
+					"path": [
+						"api",
+						"info",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:5009/api/info/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5009",
+							"path": [
+								"api",
+								"info",
+								""
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "http://localhost:5009/api/info/:id",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5009/api/info/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5009",
+					"path": [
+						"api",
+						"info",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:5009/api/info/:id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5009",
+							"path": [
+								"api",
+								"info",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": ""
+				}
+			]
+		}
+	]
+}

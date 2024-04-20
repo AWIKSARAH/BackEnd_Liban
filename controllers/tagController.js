@@ -1,4 +1,5 @@
 
+import { NotFoundError } from "../errors.js";
 import model from "../models/tagModel.js";
 const PAGE_SIZE =5;
 
@@ -6,8 +7,8 @@ function add(req, res, next) {
   let Add = new model(req.body)
   Add.save()
     .then((response) => res.status(200).send({ success: true, response }))
-    .catch((err) => {
-      res.status(400).send(err)
+    .catch((error) => {
+      next(error)
     })
 }
 
@@ -15,26 +16,26 @@ function add(req, res, next) {
 
 
 async function getAll(req, res) {
-  try {
-    const pageNumber = req.query.page || 1;
-    const skipCount = (pageNumber - 1) * PAGE_SIZE;
-
-    const totalTag= await model.countDocuments();
-    const totalPages = Math.ceil(totalTag/ PAGE_SIZE);
-
-    const Tag = await model.find().skip(skipCount).limit(PAGE_SIZE);
-
-    return res.status(200).json({
-      success: true,
-      data: Tag,
-      pageNumber: pageNumber,
-      totalPages: totalPages
+  const filter = {};
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+    if (req.query.name) {
+      filter.name = { $regex: new RegExp("^" + req.query.name, "i") };
+    }
+   model.paginate(filter, { page, limit }).then((result) => {
+      res.status(200).json({
+        success: true,
+        data: result,
+        
+      });
+      if (!result) {
+          throw new NotFoundError("No tags found")
+        }
+    }).catch((error) => {
+      next(error)
     });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+    
 }
-
 
 
 
@@ -44,13 +45,13 @@ async function getAll(req, res) {
 async function getById(req, res, next) {
   try {
     const id = req.params.id
-    const event = await model.findOne({ _id: id })
-    if (!event) {
-      return res.status(404).send({ success: false, error: 'Event not found' })
+    const tag = await model.findOne({ _id: id })
+    if (!tag) {
+      throw new NotFoundError(`Tag ${id} not found`)
     }
-    res.status(200).send({ success: true, event })
-  } catch (err) {
-    res.status(500).send({ success: false, error: err.message })
+    res.status(200).send({ success: true, tag })
+  } catch (error) {
+next(error)
   }
 }
 
@@ -73,12 +74,12 @@ async function getByName(req, res, next) {
     const totalPages = Math.ceil(totalTag / PAGE_SIZE);
 
     if (!tag.length) {
-      return res.status(404).send({ success: false, error: 'Tag not found' })
+      throw new NotFoundError(`Tag ${name} does not exist`)
     }
 
     res.status(200).send({ success: true, tag, pageNumber, totalPages });
-  } catch (err) {
-    res.status(500).send({ success: false, error: err.message })
+  } catch (error) {
+    next(error)
   }
 }
 
@@ -94,12 +95,12 @@ console.log(body);
   model.updateOne({ _id: id }, { $set: body })
     .then(response => {
       if (response.nModified === 0) {
-        return res.status(404).send({ success: false, message: "No matching document found." });
+        throw new NotFoundError(`Tag ${id} does not exist`)
       }
       res.status(200).send({ success: true, message: "Document updated successfully.",body, response });
     })
-    .catch(err => {
-      return next(err);
+    .catch(error => {
+      next(error);
     });
 }
 
@@ -109,10 +110,7 @@ function Delete(req, res, next) {
     .findByIdAndRemove(id)
     .then((response) => {
       if (!response) {
-        return res
-          .status(404)
-          .send({ success: false, message: 'No matching document found.' })
-      }
+        throw new NotFoundError(`Tag ${id} not found`) }
       res
         .status(200)
         .send({
@@ -121,8 +119,8 @@ function Delete(req, res, next) {
           response,
         })
     })
-    .catch((err) => {
-      return next(err)
+    .catch((error) => {
+      next(error)
     })
 }
 
@@ -136,8 +134,8 @@ async function deleteAll(req, res, next) {
       message: "All documents deleted successfully.",
       response,
     });
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    next(error);
   }
 }
 

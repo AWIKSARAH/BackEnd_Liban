@@ -14,9 +14,7 @@ export default async function  requiredAuth  (req,res,next) {
 
     try {
         const {_id}= jwt.verify(token, process.env.SECRET_KEY)
-        console.log(_id);
         req.user = await User.findById(_id)
-        console.log(req.user);
         next();
     } catch (error) {
     res.status(401).json({success: false, error: 'You must be logged in'})
